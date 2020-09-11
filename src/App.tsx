@@ -1,10 +1,16 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import logo from "./logo.svg";
 import "./App.css";
 import ipcRenderer from "./appRuntime";
 
+ipcRenderer.subscribe("message", console.log);
 
 function App() {
+  const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    return ipcRenderer.subscribe("message", setMessage);
+  }, []);
 
   return (
     <div className="App">
@@ -19,7 +25,7 @@ function App() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          Learn React
+          {message}
         </a>
       </header>
     </div>

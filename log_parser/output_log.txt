@@ -19601,3 +19601,41 @@ word
 [_ 538.204] CheckSaveReplayToFile(C:\Users\David\AppData\Roaming/Fantasy Strike/Replays/2020-09-05 22_44 CasualOnline Grimbakor (QU) vs Ayylien_Lyf3 (SE).replay): True for: {Replay: {P [Grimbakor*] Quince: 100000} & {P [Ayylien_Lyf3*] Setsuki: 010000} on s7 created 9/5/2020 10:44:48 PM = 9/5/2020 10:44:48 PM: [{RS 1 0-0 at gf 0},{RS 2 0-1 at gf 3073},{RS 3 1-1 at gf 4637},{RS 4 2-1 at gf 5897},{RS 5 2-2 at gf 8062},{RS 6 3-2 at gf 9523}] :: 18964:637349426881459992:637349426881459992:7:1:Grimbakor*:=:184592:0:0:Ayylien_Lyf3*:3:405000:0:0}
 [_ 538.204] CheckSaveReplayToFile(C:\Users\David\AppData\Roaming/Fantasy Strike/Replays/2020-09-05 22_44 CasualOnline Grimbakor (QU) vs Ayylien_Lyf3 (SE).replay): True for: {Replay: {P [Grimbakor*] Quince: 100000} & {P [Ayylien_Lyf3*] Setsuki: 010000} on s7 created 9/5/2020 10:44:48 PM = 9/5/2020 10:44:48 PM: [{RS 1 0-0 at gf 0},{RS 2 0-1 at gf 3073},{RS 3 1-1 at gf 4637},{RS 4 2-1 at gf 5897},{RS 5 2-2 at gf 8062},{RS 6 3-2 at gf 9523}] :: 18964:637349426881459992:637349426881459992:7:1:Grimbakor*:=:184592:0:0:Ayylien_Lyf3*:3:405000:0:0}
 [_ 538.204] CheckSaveReplayToFile(C:\Users\David\AppData\Roaming/Fantasy Strike/Replays/2020-09-05 22_44 CasualOnline Grimbakor (QU) vs Ayylien_Lyf3 (SE).replay): True for: {Replay: {P [Grimbakor*] Quince: 100000} & {P [Ayylien_Lyf3*] Setsuki: 010000} on s7 created 9/5/2020 10:44:48 PM = 9/5/2020 10:44:48 PM: [{RS 1 0-0 at gf 0},{RS 2 0-1 at gf 3073},{RS 3 1-1 at gf 4637},{RS 4 2-1 at gf 5897},{RS 5 2-2 at gf 8062},{RS 6 3-2 at gf 9523}] :: 18964:637349426881459992:637349426881459992:7:1:Grimbakor*:=:184592:0:0:Ayylien_Lyf3*:3:405000:0:0}
+[_ 538.204] CheckSaveReplayToFile(C:\Users\David\AppData\Roaming/Fantasy Strike/Replays/2020-09-05 22_44 CasualOnline Grimbakor (QU) vs Ayylien_Lyf3 (SE).replay): True for: {Replay: {P [Grimbakor*] Quince: 100000} & {P [Ayylien_Lyf3*] Setsuki: 010000} on s7 created 9/5/2020 10:44:48 PM = 9/5/2020 10:44:48 PM: [{RS 1 0-0 at gf 0},{RS 2 0-1 at gf 3073},{RS 3 1-1 at gf 4637},{RS 4 2-1 at gf 5897},{RS 5 2-2 at gf 8062},{RS 6 3-2 at gf 9523}] :: 18964:637349426881459992:637349426881459992:7:1:Grimbakor*:=:184592:0:0:Ayylien_Lyf3*:3:405000:0:0}
+[_ 538.204] CheckSaveReplayToFile(C:\Users\David\AppData\Roaming/Fantasy Strike/Replays/2020-09-05 22_44 CasualOnline Grimbakor (QU) vs Ayylien_Lyf3 (SE).replay): True for: {Replay: {P [Grimbakor*] Quince: 100000} & {P [Ayylien_Lyf3*] Setsuki: 010000} on s7 created 9/5/2020 10:44:48 PM = 9/5/2020 10:44:48 PM: [{RS 1 0-0 at gf 0},{RS 2 0-1 at gf 3073},{RS 3 1-1 at gf 4637},{RS 4 2-1 at gf 5897},{RS 5 2-2 at gf 8062},{RS 6 3-2 at gf 9523}] :: 18964:637349426881459992:637349426881459992:7:1:Grimbakor*:=:184592:0:0:Ayylien_Lyf3*:3:405000:0:0}
+[_ 538.204] CheckSaveReplayToFile(C:\Users\David\AppData\Roaming/Fantasy Strike/Replays/2020-09-05 22_44 CasualOnline Grimbakor (QU) vs Ayylien_Lyf3 (SE).replay): True for: {Replay: {P [Grimbakor*] Quince: 100000} & {P [Ayylien_Lyf3*] Setsuki: 010000} on s7 created 9/5/2020 10:44:48 PM = 9/5/2020 10:44:48 PM: [{RS 1 0-0 at gf 0},{RS 2 0-1 at gf 3073},{RS 3 1-1 at gf 4637},{RS 4 2-1 at gf 5897},{RS 5 2-2 at gf 8062},{RS 6 3-2 at gf 9523}] :: 18964:637349426881459992:637349426881459992:7:1:Grimbakor*:=:184592:0:0:Ayylien_Lyf3*:3:405000:0:0}
+[_ 538.204] CheckSaveReplayToFile(C:\Users\David\AppData\Roaming/Fantasy Strike/Replays/2020-09-05 22_44 CasualOnline Grimbakor (QU) vs Ayylien_Lyf3 (SE).replay): True for: {Replay: {P [Grimbakor*] Quince: 100000} & {P [Ayylien_Lyf3*] Setsuki: 010000} on s7 created 9/5/2020 10:44:48 PM = 9/5/2020 10:44:48 PM: [{RS 1 0-0 at gf 0},{RS 2 0-1 at gf 3073},{RS 3 1-1 at gf 4637},{RS 4 2-1 at gf 5897},{RS 5 2-2 at gf 8062},{RS 6 3-2 at gf 9523}] :: 18964:637349426881459992:637349426881459992:7:1:Grimbakor*:=:184592:0:0:Ayylien_Lyf3*:3:405000:0:0}
+[_ 538.204] CheckSaveReplayToFile(C:\Users\David\AppData\Roaming/Fantasy Strike/Replays/2020-09-05 22_44 CasualOnline Grimbakor (QU) vs Ayylien_Lyf3 (SE).replay): True for: {Replay: {P [Grimbakor*] Quince: 100000} & {P [Ayylien_Lyf3*] Setsuki: 010000} on s7 created 9/5/2020 10:44:48 PM = 9/5/2020 10:44:48 PM: [{RS 1 0-0 at gf 0},{RS 2 0-1 at gf 3073},{RS 3 1-1 at gf 4637},{RS 4 2-1 at gf 5897},{RS 5 2-2 at gf 8062},{RS 6 3-2 at gf 9523}] :: 18964:637349426881459992:637349426881459992:7:1:Grimbakor*:=:184592:0:0:Ayylien_Lyf3*:3:405000:0:0}
+[_ 538.204] CheckSaveReplayToFile(C:\Users\David\AppData\Roaming/Fantasy Strike/Replays/2020-09-05 22_44 CasualOnline Grimbakor (QU) vs Ayylien_Lyf3 (SE).replay): True for: {Replay: {P [Grimbakor*] Quince: 100000} & {P [Ayylien_Lyf3*] Setsuki: 010000} on s7 created 9/5/2020 10:44:48 PM = 9/5/2020 10:44:48 PM: [{RS 1 0-0 at gf 0},{RS 2 0-1 at gf 3073},{RS 3 1-1 at gf 4637},{RS 4 2-1 at gf 5897},{RS 5 2-2 at gf 8062},{RS 6 3-2 at gf 9523}] :: 18964:637349426881459992:637349426881459992:7:1:Grimbakor*:=:184592:0:0:Ayylien_Lyf3*:3:405000:0:0}
+[_ 538.204] CheckSaveReplayToFile(C:\Users\David\AppData\Roaming/Fantasy Strike/Replays/2020-09-05 22_44 CasualOnline Grimbakor (QU) vs Ayylien_Lyf3 (SE).replay): True for: {Replay: {P [Grimbakor*] Quince: 100000} & {P [Ayylien_Lyf3*] Setsuki: 010000} on s7 created 9/5/2020 10:44:48 PM = 9/5/2020 10:44:48 PM: [{RS 1 0-0 at gf 0},{RS 2 0-1 at gf 3073},{RS 3 1-1 at gf 4637},{RS 4 2-1 at gf 5897},{RS 5 2-2 at gf 8062},{RS 6 3-2 at gf 9523}] :: 18964:637349426881459992:637349426881459992:7:1:Grimbakor*:=:184592:0:0:Ayylien_Lyf3*:3:405000:0:0}
+test
+[_ 538.204] CheckSaveReplayToFile(C:\Users\David\AppData\Roaming/Fantasy Strike/Replays/2020-09-05 22_44 CasualOnline Grimbakor (QU) vs Ayylien_Lyf3 (SE).replay): True for: {Replay: {P [Grimbakor*] Quince: 100000} & {P [Ayylien_Lyf3*] Setsuki: 010000} on s7 created 9/5/2020 10:44:48 PM = 9/5/2020 10:44:48 PM: [{RS 1 0-0 at gf 0},{RS 2 0-1 at gf 3073},{RS 3 1-1 at gf 4637},{RS 4 2-1 at gf 5897},{RS 5 2-2 at gf 8062},{RS 6 3-2 at gf 9523}] :: 18964:637349426881459992:637349426881459992:7:1:Grimbakor*:=:184592:0:0:Ayylien_Lyf3*:3:405000:0:0}
+
+[O 6.482] < Server: [|authsucceeded:Grimbakor:5]
+[O 6.482] < Server: [|authsucceeded:Grimbakor:5]
+[O 6.482] < Server: [|authsucceeded:Grimbakor:5]
+[O 6.482] < Server: [|authsucceeded:Grimbakor:5]
+
+[_ 538.204] CheckSaveReplayToFile(C:\Users\David\AppData\Roaming/Fantasy Strike/Replays/2020-09-05 22_44 CasualOnline Grimbakor (QU) vs Ayylien_Lyf3 (SE).replay): True for: {Replay: {P [Grimbakor*] Quince: 100000} & {P [Ayylien_Lyf3*] Setsuki: 010000} on s7 created 9/5/2020 10:44:48 PM = 9/5/2020 10:44:48 PM: [{RS 1 0-0 at gf 0},{RS 2 0-1 at gf 3073},{RS 3 1-1 at gf 4637},{RS 4 2-1 at gf 5897},{RS 5 2-2 at gf 8062},{RS 6 3-2 at gf 9523}] :: 18964:637349426881459992:637349426881459992:7:1:Grimbakor*:=:184592:0:0:Ayylien_Lyf3*:3:405000:0:0}
+[O 6.482] < Server: [|authsucceeded:Grimbakor:5]
+[O 6.482] < Server: [|authsucceeded:Grimbakor:5]
+[O 6.482] < Server: [|authsucceeded:Grimbakor:5]
+[_ 538.204] CheckSaveReplayToFile(C:\Users\David\AppData\Roaming/Fantasy Strike/Replays/2020-09-05 22_44 CasualOnline Grimbakor (QU) vs Ayylien_Lyf3 (SE).replay): True for: {Replay: {P [Grimbakor*] Quince: 100000} & {P [Ayylien_Lyf3*] Setsuki: 010000} on s7 created 9/5/2020 10:44:48 PM = 9/5/2020 10:44:48 PM: [{RS 1 0-0 at gf 0},{RS 2 0-1 at gf 3073},{RS 3 1-1 at gf 4637},{RS 4 2-1 at gf 5897},{RS 5 2-2 at gf 8062},{RS 6 3-2 at gf 9523}] :: 18964:637349426881459992:637349426881459992:7:1:Grimbakor*:=:184592:0:0:Ayylien_Lyf3*:3:405000:0:0}
+[O 6.482] < Server: [|authsucceeded:Grimbakor:5]
+[O 6.482] < Server: [|authsucceeded:Grimbakor:5]
+[O 6.482] < Server: [|authsucceeded:Grimbakor:5]
+[O 6.482] < Server: [|authsucceeded:Grimbakor:5]
+[O 6.482] < Server: [|authsucceeded:Grimbakor:5]
+[O 6.482] < Server: [|authsucceeded:Grimbakor:5]
+[O 6.482] < Server: [|authsucceeded:Grimbakor:5]
+[O 6.482] < Server: [|authsucceeded:Grimbakor:5]
+[O 6.482] < Server: [|authsucceeded:Grimbakor:5]
+[O 6.482] < Server: [|authsucceeded:Grimbakor:5]
+[O 6.482] < Server: [|authsucceeded:Grimbakor:5]
+[O 6.482] < Server: [|authsucceeded:Grimbakor:5]
+[O 6.482] < Server: [|authsucceeded:Grimbakor:5]
+[O 6.482] < Server: [|authsucceeded:Grimbakor:5]
+[O 6.482] < Server: [|authsucceeded:Grimbakor:5]
+[O 6.482] < Server: [|authsucceeded:Grimbakor:5]
+[O 6.482] < Server: [|authsucceeded:Grimbakor:5]
+[O 6.482] < Server: [|authsucceeded:Grimbakor:5]
