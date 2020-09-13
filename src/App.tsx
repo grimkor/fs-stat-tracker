@@ -1,16 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext } from "react";
 import logo from "./logo.svg";
 import "./App.css";
-import ipcRenderer from "./appRuntime";
-
-ipcRenderer.subscribe("message", console.log);
+import { AppContext, AppProvider } from "./context/context";
 
 function App() {
-  const [message, setMessage] = useState("");
-
-  useEffect(() => {
-    return ipcRenderer.subscribe("message", setMessage);
-  }, []);
+  const context = useContext(AppContext);
 
   return (
     <div className="App">
@@ -19,17 +13,16 @@ function App() {
         <p>
           Edit <code>src/App.tsx</code> and save to reload.
         </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          {message}
-        </a>
+        <span>The status is: {context.status}</span>
+        <span>The player is: {context.player.name}</span>
+        <span>The opponent is: {context.opponent.name}</span>
       </header>
     </div>
   );
 }
 
-export default App;
+export default () => (
+  <AppProvider>
+    <App />
+  </AppProvider>
+);

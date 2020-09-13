@@ -12,4 +12,5 @@ contextBridge.exposeInMainWorld("appRuntime", {
       ipcRenderer.removeListener(channel, subscription);
     };
   },
+  gief: (...args) => ipcRenderer,
 });

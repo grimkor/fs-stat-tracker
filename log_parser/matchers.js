@@ -1,4 +1,4 @@
-const { Actions } = require("../constants");
+const { Actions } = require("./constants");
 const authenticated = (line) => {
   try {
     if (line.match(/\[\|authsucceeded:/i)) {
@@ -45,7 +45,53 @@ const gameResult = (line) => {
   }
 };
 
+const casualMatchFound = (line) => {
+  const match = line.match(/\[\|join:ip/i);
+  if (match) {
+    const properties = line.matchAll(/\w*:\w*/gi);
+    return [...properties].reduce((acc, prop) => {
+      const [key, value] = prop[0].split(":");
+      return { ...acc, [key]: value };
+    }, {});
+  }
+};
+
+const rankedMatchFound = (line) => {
+  const match = line.match(/\[\|joinranked:/i);
+  if (match) {
+    const properties = line.matchAll(/\w*:\w*/gi);
+    return [...properties].reduce((acc, prop) => {
+      const [key, value] = prop[0].split(":");
+      return { ...acc, [key]: value };
+    }, {});
+  }
+};
+
+const rankedMatchResult = (line) => {
+  if (line.match(/end prepareteambattlescreen/i)) {
+    const scores = line.match(/winnerChars P1 \[(.*?)\] P2 \[(.*?)\]/i);
+    if (scores.some((x) => x.split(",").length === 3)) {
+      return [...scores].reduce(
+        (acc, player, index) =>
+          index
+            ? {
+                winner: player.split(",").length === 3 ? index : acc.winner,
+                loserScore:
+                  player.split(",").length === 3
+                    ? acc.score
+                    : player.split(",").length,
+              }
+            : acc,
+        { score: 0, winner: 0 }
+      );
+    }
+  }
+};
+
 module.exports = {
   authenticated,
   gameResult,
+  casualMatchFound,
+  rankedMatchFound,
+  rankedMatchResult,
 };
