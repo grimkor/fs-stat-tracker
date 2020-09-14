@@ -12,10 +12,10 @@ class BackEnd {
         stdio: ["pipe", "pipe", "pipe", "ipc"],
       }
     );
-    this.process.on("error", (e) => console.error("error", e));
-    this.process.on("close", (e) => console.log("close", e));
+    this.process.on("error", (e) => console.error("error", e.message));
+    this.process.on("close", (e) => console.log("close", e.message));
     this.process.on("disconnect", () => console.log("disconnected"));
-    this.process.on("exit", (e) => console.log("exit", e));
+    this.process.on("exit", (e) => console.log("exit", e.message));
   }
 
   addSubscription(id, event) {

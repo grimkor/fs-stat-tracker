@@ -8,6 +8,7 @@ const {
   rankedMatchFound,
   rankedMatchResult,
 } = require("./matchers");
+const db = require("./database");
 
 class LogParser {
   constructor(file, process) {
@@ -20,6 +21,11 @@ class LogParser {
     });
     this.tail.on("line", this.processLine.bind(this));
     this.tail.on("error", function (error) {});
+    db.getConfig((err, result) => {
+      if (!err && result.find((x) => x.setting === "playerName")) {
+        this.player.name = result.find((x) => x.setting === "playerName").value;
+      }
+    });
   }
 
   run() {
@@ -45,7 +51,11 @@ class LogParser {
   processLine(line) {
     try {
       if (authenticated(line)) {
-        this.player.name = authenticated(line);
+        const name = authenticated(line);
+        if (this.player.name !== name) {
+          this.player.name = name;
+          db.setConfig({ playerName: this.player.name });
+        }
         this.process.send([Actions.authenticated, this.player.name]);
       }
       if (casualMatchFound(line)) {
@@ -61,12 +71,14 @@ class LogParser {
           {
             opponent: this.opponent,
             matchType: MatchType.casual,
+            id: metaData.gameplayRandomSeed,
           },
         ]);
       }
       if (rankedMatchFound(line)) {
         this.setDefaultState();
         const metaData = rankedMatchFound(line);
+        this.matchId = metaData.gameplayRandomSeed;
         this.opponent.name = metaData.oppName;
         this.opponent.rank = metaData.oppRank;
         this.opponent.league = metaData.oppLeague;
@@ -84,7 +96,31 @@ class LogParser {
         ]);
       }
       if (gameResult(line)) {
-        this.process.send([Actions.game_result, gameResult(line)]);
+        const game = gameResult(line);
+        const playerWins = game.winner.player === this.player.name;
+        const player = playerWins ? game.winner : game.loser;
+        const opponent = playerWins ? game.loser : game.winner;
+
+        db.insertGameResult(
+          {
+            id: this.matchId,
+            player_character: player.character,
+            opp_character: opponent.character,
+            player_score: player.score,
+            opp_score: opponent.score,
+          },
+          (err, res) => err && this.process.send(["ERR:", err.message])
+        );
+        this.process.send([
+          Actions.game_result,
+          {
+            id: this.matchId,
+            player_character: player.character,
+            opp_character: opponent.character,
+            player_score: player.score,
+            opp_score: opponent.score,
+          },
+        ]);
       }
       if (rankedMatchResult(line)) {
         const result = rankedMatchResult(line);

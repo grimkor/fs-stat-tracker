@@ -21,23 +21,24 @@ const gameResult = (line) => {
         const whoWonIndex = Number(split[split.length - 1]);
 
         const playerMatches = [...line.matchAll(/{P\s\[\w*\*{0,1}\]\s\w*/gi)];
+        const score = line.match(/\[\{.*(\d\-\d).*}]/i)[1].split("-");
         const players = playerMatches
-          .map((x) => x[0])
-          .map((result) => {
-            let [trash, player, character] = result.split(" ");
-            player = player.replace(/(\[|\]|\*)/gi, "");
-            return { player, character };
-          });
+            .map((x) => x[0])
+            .map((result, index) => {
+              let [trash, player, character] = result.split(" ");
+              player = player.replace(/(\[|\]|\*)/gi, "");
+              return { player, character, score: Number(score[index]) };
+            });
 
         const winner = players[whoWonIndex - 1];
         const loser = players.find((player) => player !== winner);
-        process.send([
-          Actions.match_result,
-          {
-            loser,
-            winner,
+        return {
+          loser,
+          winner: {
+            ...winner,
+            score: winner.score + 1,
           },
-        ]);
+        };
       }
     }
   } catch (e) {
@@ -51,7 +52,7 @@ const casualMatchFound = (line) => {
     const properties = line.matchAll(/\w*:\w*/gi);
     return [...properties].reduce((acc, prop) => {
       const [key, value] = prop[0].split(":");
-      return { ...acc, [key]: value };
+      return key ? { ...acc, [key]: value } : acc;
     }, {});
   }
 };
@@ -62,7 +63,7 @@ const rankedMatchFound = (line) => {
     const properties = line.matchAll(/\w*:\w*/gi);
     return [...properties].reduce((acc, prop) => {
       const [key, value] = prop[0].split(":");
-      return { ...acc, [key]: value };
+      return key ? { ...acc, [key]: value } : acc;
     }, {});
   }
 };
