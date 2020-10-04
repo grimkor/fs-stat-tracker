@@ -8,7 +8,7 @@ const {
   rankedMatchFound,
   rankedMatchResult,
 } = require("./matchers");
-const db = require("./database");
+const db = require("../database");
 
 class LogParser {
   constructor(file, process) {
@@ -24,6 +24,7 @@ class LogParser {
     db.getConfig((err, result) => {
       if (!err && result.find((x) => x.setting === "playerName")) {
         this.player.name = result.find((x) => x.setting === "playerName").value;
+        // this.process.send([Actions.set_config, this.player.name]);
       }
     });
   }
@@ -34,11 +35,13 @@ class LogParser {
 
   setDefaultState() {
     this.player = {
-      name: "",
+      ...this.player,
       league: "",
       rank: "",
+      stars: 0,
     };
     this.opponent = {
+      id: -1,
       name: "",
       league: "",
       rank: "",
@@ -62,38 +65,77 @@ class LogParser {
         this.setDefaultState();
         const metaData = casualMatchFound(line);
         this.opponent.name = metaData.oppName;
+        this.opponent.id = metaData.oppPlayerId;
         this.matchId = metaData.gameplayRandomSeed;
         this.playerPosition = metaData.pnum;
         this.matchMetaData = metaData;
         this.matchType = MatchType.casual;
-        this.process.send([
-          Actions.match_found,
+        db.insertMatch(
           {
-            opponent: this.opponent,
-            matchType: MatchType.casual,
-            id: metaData.gameplayRandomSeed,
+            matchId: this.matchId,
+            matchType: this.matchType,
+            playerLeague: this.player.league,
+            playerRank: this.player.rank,
+            playerStars: this.player.stars,
+            oppId: this.opponent.id,
+            oppName: this.opponent.name,
+            oppPlatform: this.matchMetaData.oppPlatform,
+            oppPlatformId: this.matchMetaData.oppPlatformId,
+            oppInputConfig: this.matchMetaData.oppInputConfig,
+            oppLeague: this.opponent.league,
+            oppRank: this.opponent.rank,
           },
-        ]);
+          (err, res) => {
+            if (!err) {
+              this.process.send([
+                Actions.match_found,
+                {
+                  player: this.player,
+                  opponent: this.opponent,
+                  matchType: MatchType.casual,
+                },
+              ]);
+            } else {
+              this.process.send(["ERROR", err.message]);
+            }
+          }
+        );
       }
       if (rankedMatchFound(line)) {
         this.setDefaultState();
         const metaData = rankedMatchFound(line);
         this.matchId = metaData.gameplayRandomSeed;
+        this.opponent.id = metaData.oppPlayerId;
         this.opponent.name = metaData.oppName;
         this.opponent.rank = metaData.oppRank;
         this.opponent.league = metaData.oppLeague;
         this.player.rank = metaData.playerRank;
         this.player.league = metaData.playerLeague;
+        this.player.stars = metaData.playerStars;
         this.playerPosition = metaData.pnum;
         this.matchMetaData = metaData;
         this.matchType = MatchType.ranked;
-        this.process.send([
-          Actions.match_found,
+        db.insertMatch(
           {
-            opponent: this.opponent,
-            matchType: MatchType.ranked,
+            matchId: this.matchId,
+            matchType: this.matchType,
+            playerLeague: this.player.league,
+            playerRank: this.player.rank,
+            playerStars: this.player.stars,
+            oppId: this.opponent.id,
+            oppName: this.opponent.name,
+            oppPlatform: this.matchMetaData.oppPlatform,
+            oppPlatformId: this.matchMetaData.oppPlatformId,
+            oppInputConfig: this.matchMetaData.oppInputConfig,
+            oppLeague: this.opponent.league,
+            oppRank: this.opponent.rank,
           },
-        ]);
+          (err, res) => {
+            if (err) {
+              this.process.send(["ERROR", err.message]);
+            }
+          }
+        );
       }
       if (gameResult(line)) {
         const game = gameResult(line);
@@ -103,6 +145,7 @@ class LogParser {
 
         db.insertGameResult(
           {
+            match: this.matchMetaData,
             id: this.matchId,
             player_character: player.character,
             opp_character: opponent.character,
@@ -112,7 +155,7 @@ class LogParser {
           (err, res) => err && this.process.send(["ERR:", err.message])
         );
         this.process.send([
-          Actions.game_result,
+          Actions.update,
           {
             id: this.matchId,
             player_character: player.character,
@@ -122,18 +165,18 @@ class LogParser {
           },
         ]);
       }
-      if (rankedMatchResult(line)) {
-        const result = rankedMatchResult(line);
-        this.process.send([
-          Actions.match_result,
-          {
-            winner: result.winner === this.playerPosition,
-            opponent: this.opponent,
-            loserScore: result.score,
-          },
-        ]);
-        this.setDefaultState();
-      }
+      // if (rankedMatchResult(line)) {
+      //   const result = rankedMatchResult(line);
+      //   this.process.send([
+      //     Actions.update,
+      //     {
+      //       winner: result.winner === this.playerPosition,
+      //       opponent: this.opponent,
+      //       loserScore: result.score,
+      //     },
+      //   ]);
+      //   this.setDefaultState();
+      // }
     } catch (e) {
       this.process.send(["error", e.message]);
     }

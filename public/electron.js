@@ -2,7 +2,7 @@ const { app, BrowserWindow } = require("electron");
 
 const path = require("path");
 const isDev = require("electron-is-dev");
-const BackEnd = require("../backend");
+const BackEnd = require("./backend");
 let mainWindow;
 
 function createWindow() {

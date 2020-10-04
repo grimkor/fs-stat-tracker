@@ -1,28 +1,41 @@
-import React, { useContext } from "react";
-import logo from "./logo.svg";
-import "./App.css";
-import { AppContext, AppProvider } from "./context/context";
+import React from "react";
+import { AppProvider } from "./context";
+import { createMuiTheme, Theme, ThemeProvider } from "@material-ui/core";
+import { common } from "@material-ui/core/colors";
+import NavBar from "./containers/NavBar";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import Overview from "./containers/Overview";
+import History from "./containers/History";
 
-function App() {
-  const context = useContext(AppContext);
+const theme: Theme = createMuiTheme({
+  palette: {
+    primary: {
+      main: common.white,
+    },
+  },
+});
 
+export default function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <span>The status is: {context.status}</span>
-        <span>The player is: {context.player.name}</span>
-        <span>The opponent is: {context.opponent.name}</span>
-      </header>
-    </div>
+    <AppProvider>
+      <ThemeProvider theme={theme}>
+        <Router>
+          <div>
+            <NavBar />
+            <Switch>
+              <Route path="/overview">
+                <Overview />
+              </Route>
+              <Route path="/history">
+                <History />
+              </Route>
+              <Route path="/">
+                <Overview />
+              </Route>
+            </Switch>
+          </div>
+        </Router>
+      </ThemeProvider>
+    </AppProvider>
   );
 }
-
-export default () => (
-  <AppProvider>
-    <App />
-  </AppProvider>
-);

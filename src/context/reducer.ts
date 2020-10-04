@@ -1,10 +1,11 @@
 import { Reducer } from "react";
-import { Context, MatchType, Opponent, Status } from "../types";
+import { Config, Context, MatchType, Opponent, Status } from "../types";
 
 export enum Actions {
   status = "status",
   authenticated = "authenticated",
   match_found = "match_found",
+  set_config = "set_config",
 }
 
 type ActionTypes =
@@ -13,9 +14,10 @@ type ActionTypes =
   | {
       type: Actions.match_found;
       payload: { matchType: MatchType; opponent: Opponent };
-    };
+    }
+  | { type: Actions.set_config; payload: Config };
 
-const contextReducer: Reducer<Context, ActionTypes> = (state, action) => {
+const reducer: Reducer<Context, ActionTypes> = (state, action) => {
   console.log(state, action);
   switch (action.type) {
     case Actions.status:
@@ -24,7 +26,12 @@ const contextReducer: Reducer<Context, ActionTypes> = (state, action) => {
       return { ...state, player: { ...state.player, name: action.payload } };
     case Actions.match_found:
       return { ...state, ...action.payload };
+    case Actions.set_config:
+      return {
+        ...state,
+        player: { ...state.player, name: action.payload.playerName },
+      };
   }
 };
 
-export default contextReducer;
+export default reducer;

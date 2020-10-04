@@ -9,6 +9,10 @@ export interface Opponent {
   rank?: string;
 }
 
+export interface Config {
+  playerName: string;
+}
+
 export type Status = "Connected" | "Disconnected";
 export type MatchType = "casual" | "ranked";
 
