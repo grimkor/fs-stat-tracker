@@ -18,7 +18,6 @@ type ActionTypes =
   | { type: Actions.set_config; payload: Config };
 
 const reducer: Reducer<Context, ActionTypes> = (state, action) => {
-  console.log(state, action);
   switch (action.type) {
     case Actions.status:
       return { ...state, status: action.payload };
@@ -29,7 +28,7 @@ const reducer: Reducer<Context, ActionTypes> = (state, action) => {
     case Actions.set_config:
       return {
         ...state,
-        player: { ...state.player, name: action.payload.playerName },
+        config: action.payload,
       };
   }
 };

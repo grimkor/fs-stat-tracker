@@ -5,15 +5,16 @@ import { AppContext } from "../../context";
 import NavButtonGroup from "../../components/NavButtonGroup";
 
 const NavBar: FC = () => {
-  const { player } = useContext(AppContext);
+  const context = useContext(AppContext);
   return (
     <AppBar position="static">
       <Toolbar>
         <NavButtonGroup>
           <NavButton label="Overview" route="/overview" />
-          <NavButton label="History" route="/history" />
+          {/*<NavButton label="History" route="/history" />*/}
+          <NavButton label="Settings" route="/settings" />
         </NavButtonGroup>
-        <Typography variant="h6">{player.name}</Typography>
+        <Typography variant="h6">{context.config.playerName}</Typography>
       </Toolbar>
     </AppBar>
   );

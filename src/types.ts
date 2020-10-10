@@ -1,5 +1,4 @@
 export interface Player {
-  name: string;
   rank: string;
   winrate?: number;
 }
@@ -11,6 +10,7 @@ export interface Opponent {
 
 export interface Config {
   playerName: string;
+  logFile: string;
 }
 
 export type Status = "Connected" | "Disconnected";
@@ -21,4 +21,5 @@ export interface Context {
   player: Player;
   opponent: Opponent;
   matchType: MatchType;
+  config: Config;
 }

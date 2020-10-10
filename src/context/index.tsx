@@ -1,5 +1,5 @@
 import React, { createContext, FC, useEffect, useReducer } from "react";
-import { Config, Context, MatchType, Opponent, Player, Status } from "../types";
+import { Config, Context, Status } from "../types";
 import reducer, { Actions } from "./reducer";
 
 const { ipcRenderer } = window.require("electron");
@@ -8,12 +8,15 @@ const defaultContext: Context = {
   matchType: "casual",
   status: "Disconnected",
   player: {
-    name: "-",
     rank: "-",
     winrate: 0,
   },
   opponent: {
     name: "-",
+  },
+  config: {
+    playerName: "-",
+    logFile: "",
   },
 };
 

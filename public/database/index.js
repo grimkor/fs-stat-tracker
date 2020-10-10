@@ -1,5 +1,8 @@
 const sqlite3 = require("sqlite3");
 const fs = require("fs");
+const path = require("path");
+const { app } = require("electron");
+app.getPath("home");
 
 const createGameTable = `
 create table IF NOT EXISTS game
@@ -50,16 +53,21 @@ create unique index config_setting_uindex
 `;
 
 const getDatabase = () => {
-  const newDb = !fs.existsSync("C:\\Users\\David\\WebstormProjects\\fs_log_parser\\hello.db");
-  const db = new sqlite3.Database("C:\\Users\\David\\WebstormProjects\\fs_log_parser\\hello.db", (err) => {
-    if (!err && newDb) {
-      db.serialize(() => {
-        db.run(createConfigTable);
-        db.run(createMatchTable);
-        db.run(createGameTable);
-      });
+  const newDb = !fs.existsSync(
+    path.join(app.getPath("home"), "fs-log-parser.db")
+  );
+  const db = new sqlite3.Database(
+    path.join(app.getPath("home"), "fs-log-parser.db"),
+    (err) => {
+      if (!err && newDb) {
+        db.serialize(() => {
+          db.run(createConfigTable);
+          db.run(createMatchTable);
+          db.run(createGameTable);
+        });
+      }
     }
-  });
+  );
   return db;
 };
 

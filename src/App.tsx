@@ -6,6 +6,8 @@ import NavBar from "./containers/NavBar";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import Overview from "./containers/Overview";
 import History from "./containers/History";
+import Settings from "./containers/Settings";
+import Container from "./components/Container";
 
 const theme: Theme = createMuiTheme({
   palette: {
@@ -22,17 +24,22 @@ export default function App() {
         <Router>
           <div>
             <NavBar />
-            <Switch>
-              <Route path="/overview">
-                <Overview />
-              </Route>
-              <Route path="/history">
-                <History />
-              </Route>
-              <Route path="/">
-                <Overview />
-              </Route>
-            </Switch>
+            <Container>
+              <Switch>
+                <Route path="/overview">
+                  <Overview />
+                </Route>
+                <Route path="/history">
+                  <History />
+                </Route>
+                <Route path="/settings">
+                  <Settings />
+                </Route>
+                <Route path="/">
+                  <Overview />
+                </Route>
+              </Switch>
+            </Container>
           </div>
         </Router>
       </ThemeProvider>
