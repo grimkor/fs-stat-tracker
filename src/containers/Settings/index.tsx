@@ -1,11 +1,16 @@
-import React, { FC, useContext, useState } from "react";
+import React, { FC, useContext, useEffect, useState } from "react";
 import FileSelectInput from "../../components/FileSelectInput";
 import { Button } from "@material-ui/core";
 import { AppContext } from "../../context";
+import ipcSetRequest from "../../helpers/ipcSetRequest";
 
 const Settings: FC = () => {
   const { config } = useContext(AppContext);
   const [logFile, setLogFile] = useState(config.logFile);
+
+  useEffect(() => {
+    setLogFile(config.logFile);
+  }, [config]);
 
   const handleChange = (str: string) => {
     setLogFile(str);
@@ -13,7 +18,7 @@ const Settings: FC = () => {
 
   const submit = () => {
     if (config.logFile !== logFile) {
-      console.log(logFile);
+      ipcSetRequest("set_config", { logFile }, console.log);
     }
   };
 

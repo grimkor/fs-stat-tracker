@@ -12,7 +12,6 @@ const db = require("../database");
 
 class LogParser {
   constructor(file, process) {
-    console.log(process);
     this.process = process;
     this.file = file;
     this.setDefaultState();

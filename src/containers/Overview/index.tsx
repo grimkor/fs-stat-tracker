@@ -1,21 +1,8 @@
-import React, { FC, useEffect, useState } from "react";
-import { Divider, Typography } from "@material-ui/core";
+import React, {FC} from "react";
+import {Divider, Typography} from "@material-ui/core";
 import OverviewStat from "../../components/OverviewStat";
+import {useIpcRequest} from "../../helpers/useIpcRequest";
 
-const { ipcRenderer } = window.require("electron");
-
-function useIpcRequest<T>(endpoint: string): { data: T | null } {
-  const [data, setData] = useState<T | null>(null);
-  useEffect(() => {
-    ipcRenderer.on("update", () => ipcRenderer.send(endpoint));
-    ipcRenderer.send(endpoint);
-    ipcRenderer.on(`${endpoint}_reply`, (event: unknown, payload: T) => {
-      setData(payload);
-    });
-  }, [endpoint]);
-
-  return { data };
-}
 
 interface Stats {
   ranked: {
@@ -54,7 +41,7 @@ const Overview: FC = () => {
           data?.ranked?.losses ?? " - "
         }`}
       />
-      <OverviewStat title="Rank" value={data?.ranked.rank} />
+      <OverviewStat title="Rank" value={data?.ranked?.rank} />
       <OverviewStat
         title="Win/Loss (30 days)"
         value={`${data?.ranked?.wins30 ?? " - "}:${

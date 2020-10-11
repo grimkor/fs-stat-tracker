@@ -26,6 +26,7 @@ const reducer: Reducer<Context, ActionTypes> = (state, action) => {
     case Actions.match_found:
       return { ...state, ...action.payload };
     case Actions.set_config:
+      console.log(action);
       return {
         ...state,
         config: action.payload,

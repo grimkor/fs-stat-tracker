@@ -30,8 +30,10 @@ const FileSelectInput: FC<Props> = ({ value, setValue }) => {
   const { field, fieldGroup, label, root } = useStyles();
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.currentTarget.value) {
-      setValue(e.currentTarget.value);
+    const file = e.currentTarget.files?.[0];
+    if (file) {
+      // @ts-ignore
+      setValue(file.path);
     }
   };
 

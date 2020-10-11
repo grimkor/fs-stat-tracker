@@ -1,9 +1,8 @@
 const sqlite3 = require("sqlite3");
 const fs = require("fs");
 const path = require("path");
-const { app } = require("electron");
-app.getPath("home");
 
+const homedir = require("os").homedir();
 const createGameTable = `
 create table IF NOT EXISTS game
 (
@@ -21,7 +20,7 @@ create table IF NOT EXISTS game
 const createMatchTable = `
 create table IF NOT EXISTS match
 (
-    match_id         TEXT not null
+    id         TEXT not null
         constraint match_pk
             primary key,
     timestamp        INTEGER default CURRENT_TIMESTAMP,
@@ -53,11 +52,9 @@ create unique index config_setting_uindex
 `;
 
 const getDatabase = () => {
-  const newDb = !fs.existsSync(
-    path.join(app.getPath("home"), "fs-log-parser.db")
-  );
+  const newDb = !fs.existsSync(path.join(homedir, "fs-log-parser.db"));
   const db = new sqlite3.Database(
-    path.join(app.getPath("home"), "fs-log-parser.db"),
+    path.join(homedir, "fs-log-parser.db"),
     (err) => {
       if (!err && newDb) {
         db.serialize(() => {
