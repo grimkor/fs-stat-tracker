@@ -51,110 +51,120 @@ create unique index config_setting_uindex
     on config (setting);
 `;
 
-const getDatabase = () => {
-  const newDb = !fs.existsSync(path.join(homedir, "fs-log-parser.db"));
-  const db = new sqlite3.Database(
-    path.join(homedir, "fs-log-parser.db"),
-    (err) => {
-      if (!err && newDb) {
-        db.serialize(() => {
-          db.run(createConfigTable);
-          db.run(createMatchTable);
-          db.run(createGameTable);
-        });
-      }
+const getDatabase = (callback) => {
+    const newDb = !fs.existsSync(path.join(homedir, "fs-log-parser.db"));
+    const db = new sqlite3.Database(
+        path.join(homedir, "fs-log-parser.db"),
+        (err) => {
+            if (!err && newDb) {
+                db.serialize(() => {
+                    db.run(createConfigTable);
+                    db.run(createMatchTable);
+                    db.run(createGameTable);
+                    callback(err, db);
+                });
+            } else {
+                callback(err, db);
+            }
     }
   );
   return db;
 };
 
 const getColumns = (table, callback) => {
-  const db = getDatabase();
-  db.all(`pragma table_info(${table})`, (err, result) => {
-    callback(err, result);
-  });
+    getDatabase((err, db) => {
+        db.all(`pragma table_info(${table})`, (err, result) => {
+            callback(err, result);
+        });
+    });
 };
 
 const getConfig = (callback) => {
-  const db = getDatabase();
-  return db.all(`SELECT * from config`, callback);
+    getDatabase((err, db) => {
+        db.all(`SELECT * from config`, callback);
+    });
 };
 
 const setConfig = (config, callback) => {
-  const db = getDatabase();
-  db.serialize(() => {
-    const statement = db.prepare(`
+    getDatabase((err, db) => {
+        db.serialize(() => {
+            const statement = db.prepare(`
     INSERT OR REPLACE INTO config 
     (setting, value) VALUES (?, ?)
     `);
-    Object.entries(config).forEach(([key, value]) => statement.run(key, value));
-    statement.finalize(callback);
-  });
+            Object.entries(config).forEach(([key, value]) =>
+                statement.run(key, value)
+            );
+            statement.finalize(callback);
+        });
+    });
 };
 
 const insertMatch = (match, callback) => {
-  const db = getDatabase();
-  db.serialize(() => {
-    db.run(
-      `
+    getDatabase((err, db) => {
+        db.serialize(() => {
+            db.run(
+                `
     INSERT OR IGNORE INTO match
     (id, match_type, player_league, player_rank, player_stars, opp_id, opp_name, opp_platform, opp_platform_id, opp_input_config, opp_league, opp_rank)
     VALUES
     (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `,
-      [
-        match.matchId,
-        match.matchType,
-        match.playerLeague,
-        match.playerRank,
-        match.playerStars,
-        match.oppId,
-        match.oppName,
-        match.oppPlatform,
-        match.oppPlatformId,
-        match.oppInputConfig,
-        match.oppLeague,
-        match.oppRank,
-      ],
-      callback
-    );
+                [
+                    match.matchId,
+                    match.matchType,
+                    match.playerLeague,
+                    match.playerRank,
+                    match.playerStars,
+                    match.oppId,
+                    match.oppName,
+                    match.oppPlatform,
+                    match.oppPlatformId,
+                    match.oppInputConfig,
+                    match.oppLeague,
+                    match.oppRank,
+                ],
+                callback
+            );
+        });
   });
 };
 
 const insertGameResult = (game, callback) => {
-  const db = getDatabase();
-  db.serialize(() => {
-    db.run(
-      `
+    getDatabase((err, db) => {
+        db.serialize(() => {
+            db.run(
+                `
       INSERT OR IGNORE INTO match
       (id) VALUES (?)
     `,
-      [game.id]
-    );
-    db.run(
-      `
+                [game.id]
+            );
+            db.run(
+                `
       INSERT INTO game
       (match_id, player_character, opp_character, player_score, opp_score)
       VALUES
       (?,?,?,?,?)
     `,
-      [
-        game.id,
-        game.player_character,
-        game.opp_character,
-        game.player_score,
-        game.opp_score,
-      ],
-      callback
-    );
+                [
+                    game.id,
+                    game.player_character,
+                    game.opp_character,
+                    game.player_score,
+                    game.opp_score,
+                ],
+                callback
+            );
+        });
   });
 };
 
 const getWinLoss = (callback) => {
-  const db = getDatabase();
-  db.serialize(() => {
-    db.all(
-      `
+    getDatabase((err, db) => {
+        db.serialize(() => {
+            db.all(
+                `
         select count(id)                                              as total,
                sum(case when win > lose then 1 else 0 end)            as wins,
                sum(case when win < lose then 1 else 0 end)            as losses,
@@ -177,8 +187,9 @@ const getWinLoss = (callback) => {
              ) x
         group by x.match_type;
     `,
-      callback
-    );
+                callback
+            );
+        });
   });
 };
 
