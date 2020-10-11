@@ -70,27 +70,27 @@ class LogParser {
         this.matchType = MatchType.casual;
         db.insertMatch(
             {
-              matchId: this.matchMetaData.gameplayRandomSeed,
-              matchType: this.matchType,
-              playerLeague: this.player.league,
-              playerRank: this.player.rank,
-              playerStars: this.player.stars,
-              oppId: this.opponent.id,
-              oppName: this.opponent.name,
-              oppPlatform: this.matchMetaData.oppPlatform,
-              oppPlatformId: this.matchMetaData.oppPlatformId,
-              oppInputConfig: this.matchMetaData.oppInputConfig,
-              oppLeague: this.opponent.league,
-            oppRank: this.opponent.rank,
-          },
-          (err, res) => {
-            if (!err) {
-              this.matchId = res.id;
-              this.process.send([
-                Actions.match_found,
-                {
-                  player: this.player,
-                  opponent: this.opponent,
+                matchId: this.matchMetaData.gameplayRandomSeed,
+                matchType: this.matchType,
+                playerLeague: this.player.league,
+                playerRank: this.player.rank,
+                playerStars: this.player.stars,
+                oppId: this.opponent.id,
+                oppName: this.opponent.name,
+                oppPlatform: this.matchMetaData.oppPlatform,
+                oppPlatformId: this.matchMetaData.oppPlatformId,
+                oppInputConfig: this.matchMetaData.oppInputConfig,
+                oppLeague: this.opponent.league,
+                oppRank: this.opponent.rank,
+            },
+            (err, res) => {
+                if (!err) {
+                    this.matchId = res.id;
+                    this.process.send([
+                        Actions.match_found,
+                        {
+                            player: this.player,
+                            opponent: this.opponent,
                   matchType: MatchType.casual,
                 },
               ]);
@@ -115,69 +115,68 @@ class LogParser {
         this.matchType = MatchType.ranked;
         db.insertMatch(
             {
-              matchId: this.matchMetaData.gameplayRandomSeed,
-              matchType: this.matchType,
-              playerLeague: this.player.league,
-              playerRank: this.player.rank,
-              playerStars: this.player.stars,
-              oppId: this.opponent.id,
-              oppName: this.opponent.name,
-              oppPlatform: this.matchMetaData.oppPlatform,
-              oppPlatformId: this.matchMetaData.oppPlatformId,
-              oppInputConfig: this.matchMetaData.oppInputConfig,
-              oppLeague: this.opponent.league,
-            oppRank: this.opponent.rank,
+                matchId: this.matchMetaData.gameplayRandomSeed,
+                matchType: this.matchType,
+                playerLeague: this.player.league,
+                playerRank: this.player.rank,
+                playerStars: this.player.stars,
+                oppId: this.opponent.id,
+                oppName: this.opponent.name,
+                oppPlatform: this.matchMetaData.oppPlatform,
+                oppPlatformId: this.matchMetaData.oppPlatformId,
+                oppInputConfig: this.matchMetaData.oppInputConfig,
+                oppLeague: this.opponent.league,
+                oppRank: this.opponent.rank,
             },
             (err, res) => {
-              if (err) {
-                this.process.send(["ERROR", err.message]);
-              } else {
-                this.matchId = res.id;
-              }
+                if (err) {
+                    this.process.send(["ERROR", err.message]);
+                } else {
+                    this.matchId = res.id;
+                }
             }
         );
       }
-      if (rematchFound(line)) {
-        db.insertMatch(
-            {
-              matchId: this.matchMetaData.gameplayRandomSeed,
-              matchType: this.matchType,
-              playerLeague: this.player.league,
-              playerRank: this.player.rank,
-              playerStars: this.player.stars,
-              oppId: this.opponent.id,
-              oppName: this.opponent.name,
-              oppPlatform: this.matchMetaData.oppPlatform,
-              oppPlatformId: this.matchMetaData.oppPlatformId,
-              oppInputConfig: this.matchMetaData.oppInputConfig,
-              oppLeague: this.opponent.league,
-              oppRank: this.opponent.rank,
-            },
-            (err, res) => {
-              if (err) {
-                this.process.send(["ERROR", err.message]);
-              } else {
-                this.matchId = res.id;
-              }
-            }
-        );
+        if (rematchFound(line) && this.matchType === MatchType.casual) {
+            db.insertMatch(
+                {
+                    matchId: this.matchMetaData.gameplayRandomSeed,
+                    matchType: this.matchType,
+                    playerLeague: this.player.league,
+                    playerRank: this.player.rank,
+                    playerStars: this.player.stars,
+                    oppId: this.opponent.id,
+                    oppName: this.opponent.name,
+                    oppPlatform: this.matchMetaData.oppPlatform,
+                    oppPlatformId: this.matchMetaData.oppPlatformId,
+                    oppInputConfig: this.matchMetaData.oppInputConfig,
+                    oppLeague: this.opponent.league,
+                    oppRank: this.opponent.rank,
+                },
+                (err, res) => {
+                    if (err) {
+                        this.process.send(["ERROR", err.message]);
+                    } else {
+                        this.matchId = res.id;
+                    }
+                }
+            );
       }
       if (gameResult(line)) {
         const game = gameResult(line);
         const playerWins = game.winner.player === this.player.name;
         const player = playerWins ? game.winner : game.loser;
         const opponent = playerWins ? game.loser : game.winner;
-
         db.insertGameResult(
             {
-              match: this.matchMetaData,
-              match_id: this.matchId,
-              player_character: player.character,
-              opp_character: opponent.character,
-              player_score: player.score,
-              opp_score: opponent.score,
+                match: this.matchMetaData,
+                match_id: this.matchId,
+                player_character: player.character,
+                opp_character: opponent.character,
+                player_score: player.score,
+                opp_score: opponent.score,
             },
-          (err, res) => err && this.process.send(["ERR:", err.message])
+            (err, res) => err && this.process.send(["ERR:", err.message])
         );
         this.process.send([
           Actions.update,

@@ -20,12 +20,12 @@ const gameResult = (line) => {
         const split = matchResult[0].split(":");
         const whoWonIndex = Number(split[split.length - 1]);
 
-        const playerMatches = [...line.matchAll(/{P\s\[\w*\*{0,1}\]\s\w*/gi)];
+        const playerMatches = [...line.matchAll(/{P\s\[(.*?)\]\s\w*/gi)];
         const score = line.match(/\[\{.*(\d\-\d).*}]/i)[1].split("-");
         const players = playerMatches
             .map((x) => x[0])
             .map((result, index) => {
-              let [trash, player, character] = result.split(" ");
+              let [trash, player, character] = result.split(/\s\[|\]\s/i);
               player = player.replace(/(\[|\]|\*)/gi, "");
               return {player, character, score: Number(score[index])};
             });
@@ -58,7 +58,7 @@ const casualMatchFound = (line) => {
 };
 
 const rematchFound = (line) => {
-  const match = line.match(/\[\|startnewgame:/i);
+  const match = line.match(/RestartGGPOSessionNextFrame/i);
   if (match) {
     return true;
   }

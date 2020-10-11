@@ -165,7 +165,7 @@ const getWinLoss = (callback) => {
                sum(case when win > lose AND last30 then 1 else 0 end) as wins30,
                sum(case when win < lose AND last30 then 1 else 0 end) as losses30,
                MIN(x.player_rank)                                     as max_rank,
-               (SELECT player_rank FROM match ORDER BY timestamp limit 1)      as rank,
+               (SELECT player_rank FROM match ORDER BY timestamp DESC limit 1)      as rank,
                x.match_type
         from (
                  select m.id,
