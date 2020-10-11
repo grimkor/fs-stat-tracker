@@ -100,7 +100,6 @@ class BackEnd {
           throw new Error(err.message);
         }
         if (!err) {
-          console.log("stats", result);
           const replyObj = result.reduce(
             (obj, row) => ({
               ...obj,
@@ -115,6 +114,7 @@ class BackEnd {
   }
 
   route(action, message) {
+    console.log(action, message);
     this.subscriptions.forEach((sub) => sub.event.reply(action, message));
   }
 }

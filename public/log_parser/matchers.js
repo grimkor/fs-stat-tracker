@@ -27,7 +27,7 @@ const gameResult = (line) => {
             .map((result, index) => {
               let [trash, player, character] = result.split(" ");
               player = player.replace(/(\[|\]|\*)/gi, "");
-              return { player, character, score: Number(score[index]) };
+              return {player, character, score: Number(score[index])};
             });
 
         const winner = players[whoWonIndex - 1];
@@ -52,8 +52,15 @@ const casualMatchFound = (line) => {
     const properties = line.matchAll(/\w*:\w*/gi);
     return [...properties].reduce((acc, prop) => {
       const [key, value] = prop[0].split(":");
-      return key ? { ...acc, [key]: value } : acc;
+      return key ? {...acc, [key]: value} : acc;
     }, {});
+  }
+};
+
+const rematchFound = (line) => {
+  const match = line.match(/\[\|startnewgame:/i);
+  if (match) {
+    return true;
   }
 };
 
@@ -63,7 +70,7 @@ const rankedMatchFound = (line) => {
     const properties = line.matchAll(/\w*:\w*/gi);
     return [...properties].reduce((acc, prop) => {
       const [key, value] = prop[0].split(":");
-      return key ? { ...acc, [key]: value } : acc;
+      return key ? {...acc, [key]: value} : acc;
     }, {});
   }
 };
@@ -91,6 +98,7 @@ const rankedMatchResult = (line) => {
 
 module.exports = {
   authenticated,
+  rematchFound,
   gameResult,
   casualMatchFound,
   rankedMatchFound,

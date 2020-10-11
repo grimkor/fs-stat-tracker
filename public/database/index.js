@@ -7,10 +7,10 @@ const createGameTable = `
 create table IF NOT EXISTS game
 (
     player_character TEXT,
-    player_score     int,
+    player_score     integer,
     opp_character    TEXT,
-    opp_score        int,
-    match_id         int
+    opp_score        integer,
+    match_id         integer
         references match,
     constraint game_pk
         unique (player_character, opp_character, match_id)
@@ -20,20 +20,21 @@ create table IF NOT EXISTS game
 const createMatchTable = `
 create table IF NOT EXISTS match
 (
-    id         TEXT not null
+    id               integer not null
         constraint match_pk
-            primary key,
+            primary key autoincrement,
+    match_id         TEXT not null,
     timestamp        INTEGER default CURRENT_TIMESTAMP,
-    player_league    int,
-    player_rank      int,
-    player_stars     int,
-    opp_id           int,
+    player_league    integer,
+    player_rank      integer,
+    player_stars     integer,
+    opp_id           integer,
     opp_name         TEXT,
     opp_platform     TEXT,
-    opp_platform_id  int,
-    opp_input_config int,
-    opp_league       int,
-    opp_rank         int,
+    opp_platform_id  integer,
+    opp_input_config integer,
+    opp_league       integer,
+    opp_rank         integer,
     match_type       TEXT
 );
 `;
@@ -66,9 +67,9 @@ const getDatabase = (callback) => {
             } else {
                 callback(err, db);
             }
-    }
-  );
-  return db;
+        }
+    );
+    return db;
 };
 
 const getColumns = (table, callback) => {
@@ -102,11 +103,11 @@ const setConfig = (config, callback) => {
 
 const insertMatch = (match, callback) => {
     getDatabase((err, db) => {
-        db.serialize(() => {
+        db.serialize(function () {
             db.run(
                 `
     INSERT OR IGNORE INTO match
-    (id, match_type, player_league, player_rank, player_stars, opp_id, opp_name, opp_platform, opp_platform_id, opp_input_config, opp_league, opp_rank)
+    (match_id, match_type, player_league, player_rank, player_stars, opp_id, opp_name, opp_platform, opp_platform_id, opp_input_config, opp_league, opp_rank)
     VALUES
     (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `,
@@ -123,9 +124,9 @@ const insertMatch = (match, callback) => {
                     match.oppInputConfig,
                     match.oppLeague,
                     match.oppRank,
-                ],
-                callback
+                ]
             );
+            db.get("SELECT last_insert_rowid() as id from match", callback);
         });
   });
 };
@@ -135,20 +136,13 @@ const insertGameResult = (game, callback) => {
         db.serialize(() => {
             db.run(
                 `
-      INSERT OR IGNORE INTO match
-      (id) VALUES (?)
-    `,
-                [game.id]
-            );
-            db.run(
-                `
       INSERT INTO game
       (match_id, player_character, opp_character, player_score, opp_score)
       VALUES
       (?,?,?,?,?)
     `,
                 [
-                    game.id,
+                    game.match_id,
                     game.player_character,
                     game.opp_character,
                     game.player_score,
