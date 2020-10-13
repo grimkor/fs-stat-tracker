@@ -45,7 +45,6 @@ class LogParser {
       league: "",
       rank: "",
     };
-    this.playerPosition = undefined;
     this.matchId = undefined;
     this.matchType = undefined;
   }
@@ -65,7 +64,6 @@ class LogParser {
         const metaData = casualMatchFound(line);
         this.opponent.name = metaData.oppName;
         this.opponent.id = metaData.oppPlayerId;
-        this.playerPosition = metaData.pnum;
         this.matchMetaData = metaData;
         this.matchType = MatchType.casual;
         db.insertMatch(
@@ -110,7 +108,6 @@ class LogParser {
         this.player.rank = metaData.playerRank;
         this.player.league = metaData.playerLeague;
         this.player.stars = metaData.playerStars;
-        this.playerPosition = metaData.pnum;
         this.matchMetaData = metaData;
         this.matchType = MatchType.ranked;
         db.insertMatch(

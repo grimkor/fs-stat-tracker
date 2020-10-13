@@ -52,6 +52,19 @@ create unique index config_setting_uindex
     on config (setting);
 `;
 
+const createPlayerTable = `
+create table player
+(
+    property TEXT not null
+        constraint player_pk
+            primary key,
+    value    TEXT
+);
+
+create unique index player_property_uindex
+    on player (property);
+`;
+
 const getDatabase = (callback) => {
     const newDb = !fs.existsSync(path.join(homedir, "fs-log-parser.db"));
     const db = new sqlite3.Database(
@@ -62,6 +75,7 @@ const getDatabase = (callback) => {
                     db.run(createConfigTable);
                     db.run(createMatchTable);
                     db.run(createGameTable);
+                    db.run(createPlayerTable);
                     callback(err, db);
                 });
             } else {
@@ -94,6 +108,26 @@ const setConfig = (config, callback) => {
     (setting, value) VALUES (?, ?)
     `);
             Object.entries(config).forEach(([key, value]) =>
+                statement.run(key, value)
+            );
+            statement.finalize(callback);
+        });
+    });
+};
+const getPlayer = (callback) => {
+    getDatabase((err, db) => {
+        db.all(`SELECT * from player`, callback);
+    });
+};
+
+const setPlayer = (player, callback) => {
+    getDatabase((err, db) => {
+        db.serialize(() => {
+            const statement = db.prepare(`
+    INSERT OR REPLACE INTO player 
+    (setting, value) VALUES (?, ?)
+    `);
+            Object.entries(player).forEach(([key, value]) =>
                 statement.run(key, value)
             );
             statement.finalize(callback);
@@ -188,9 +222,11 @@ const getWinLoss = (callback) => {
 };
 
 module.exports = {
-  getConfig,
-  setConfig,
-  insertGameResult,
-  insertMatch,
-  getWinLoss,
+    getConfig,
+    setConfig,
+    getPlayer,
+    setPlayer,
+    getWinLoss,
+    insertGameResult,
+    insertMatch,
 };
