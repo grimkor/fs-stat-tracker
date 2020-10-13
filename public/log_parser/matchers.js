@@ -86,13 +86,24 @@ const rankedMatchResult = (line) => {
                 winner: player.split(",").length === 3 ? index : acc.winner,
                 loserScore:
                   player.split(",").length === 3
-                    ? acc.score
-                    : player.split(",").length,
+                      ? acc.score
+                      : player.split(",").length,
               }
-            : acc,
-        { score: 0, winner: 0 }
+              : acc,
+          {score: 0, winner: 0}
       );
     }
+  }
+};
+
+const rankedData = (line) => {
+  if (line.match(/\[\|rankeddata/i)) {
+    const match = line.match(/\[\|rankeddata.*\]/i)[0];
+    const [trash, league, rank] = match.split(":");
+    return {
+      league,
+      rank,
+    };
   }
 };
 
@@ -100,6 +111,7 @@ module.exports = {
   authenticated,
   rematchFound,
   gameResult,
+  rankedData,
   casualMatchFound,
   rankedMatchFound,
   rankedMatchResult,

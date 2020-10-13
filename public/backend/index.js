@@ -94,6 +94,20 @@ class BackEnd {
       });
     });
 
+    ipcMain.on("get_player", (event) => {
+      db.getPlayer((err, result) => {
+        if (err) {
+          throw new Error(err.message);
+        }
+        if (!err) {
+          const player = result.reduce((obj, row) => {
+            return {...obj, [row.property]: row.value};
+          }, {});
+          event.reply("get_player_reply", player);
+        }
+      });
+    });
+
     ipcMain.on("get_stats", (event) => {
       db.getWinLoss((err, result) => {
         if (err) {
@@ -101,8 +115,8 @@ class BackEnd {
         }
         if (!err) {
           const replyObj = result.reduce(
-            (obj, row) => ({
-              ...obj,
+              (obj, row) => ({
+                ...obj,
               [row.match_type]: { ...row },
             }),
             {}

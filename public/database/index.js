@@ -114,6 +114,7 @@ const setConfig = (config, callback) => {
         });
     });
 };
+
 const getPlayer = (callback) => {
     getDatabase((err, db) => {
         db.all(`SELECT * from player`, callback);
@@ -125,7 +126,7 @@ const setPlayer = (player, callback) => {
         db.serialize(() => {
             const statement = db.prepare(`
     INSERT OR REPLACE INTO player 
-    (setting, value) VALUES (?, ?)
+    (property, value) VALUES (?, ?)
     `);
             Object.entries(player).forEach(([key, value]) =>
                 statement.run(key, value)

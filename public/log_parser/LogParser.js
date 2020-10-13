@@ -2,11 +2,12 @@ const { MatchType } = require("./constants");
 const { Tail } = require("tail");
 const { Actions } = require("./constants");
 const {
-  authenticated,
-  gameResult,
-  casualMatchFound,
-  rankedMatchFound,
-  rematchFound,
+    authenticated,
+    gameResult,
+    casualMatchFound,
+    rankedData,
+    rankedMatchFound,
+    rematchFound,
 } = require("./matchers");
 const db = require("../database");
 
@@ -89,13 +90,13 @@ class LogParser {
                         {
                             player: this.player,
                             opponent: this.opponent,
-                  matchType: MatchType.casual,
-                },
-              ]);
-            } else {
-              this.process.send(["ERROR", err]);
+                            matchType: MatchType.casual,
+                        },
+                    ]);
+                } else {
+                    this.process.send(["ERROR", err]);
+                }
             }
-          }
         );
       }
       if (rankedMatchFound(line)) {
@@ -158,34 +159,40 @@ class LogParser {
                     }
                 }
             );
-      }
-      if (gameResult(line)) {
-        const game = gameResult(line);
-        const playerWins = game.winner.player === this.player.name;
-        const player = playerWins ? game.winner : game.loser;
-        const opponent = playerWins ? game.loser : game.winner;
-        db.insertGameResult(
+        }
+        if (gameResult(line)) {
+            const game = gameResult(line);
+            const playerWins = game.winner.player === this.player.name;
+            const player = playerWins ? game.winner : game.loser;
+            const opponent = playerWins ? game.loser : game.winner;
+            db.insertGameResult(
+                {
+                    match: this.matchMetaData,
+                    match_id: this.matchId,
+                    player_character: player.character,
+                    opp_character: opponent.character,
+                    player_score: player.score,
+                    opp_score: opponent.score,
+                },
+                (err, res) => err && this.process.send(["ERR:", err.message])
+            );
+        this.process.send([
+            Actions.update,
             {
-                match: this.matchMetaData,
-                match_id: this.matchId,
+                id: this.matchId,
                 player_character: player.character,
                 opp_character: opponent.character,
                 player_score: player.score,
                 opp_score: opponent.score,
             },
-            (err, res) => err && this.process.send(["ERR:", err.message])
-        );
-        this.process.send([
-          Actions.update,
-          {
-            id: this.matchId,
-            player_character: player.character,
-            opp_character: opponent.character,
-            player_score: player.score,
-            opp_score: opponent.score,
-          },
         ]);
-      }
+        }
+
+        if (rankedData(line)) {
+            const rank = rankedData(line);
+            db.setPlayer(rank);
+            this.process.send([Actions.update, rank]);
+        }
     } catch (e) {
       this.process.send(["error", e.message]);
     }

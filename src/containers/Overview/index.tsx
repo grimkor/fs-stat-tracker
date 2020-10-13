@@ -1,7 +1,8 @@
-import React, {FC} from "react";
+import React, {FC, useContext} from "react";
 import {Divider, Typography} from "@material-ui/core";
 import OverviewStat from "../../components/OverviewStat";
 import {useIpcRequest} from "../../helpers/useIpcRequest";
+import {AppContext} from "../../context";
 
 interface Stats {
   ranked: {
@@ -21,7 +22,8 @@ interface Stats {
 }
 
 const Overview: FC = () => {
-  const { data } = useIpcRequest<Stats>("get_stats");
+  const context = useContext(AppContext);
+  const {data} = useIpcRequest<Stats>("get_stats");
   return (
     <div
       style={{
@@ -40,14 +42,13 @@ const Overview: FC = () => {
           data?.ranked?.losses ?? " - "
         }`}
       />
-      <OverviewStat title="Rank" value={data?.ranked?.rank} />
+      <OverviewStat title="Rank" value={context.player.rank}/>
       <OverviewStat
         title="Win/Loss (30 days)"
         value={`${data?.ranked?.wins30 ?? " - "}:${
           data?.ranked?.losses30 ?? " - "
         }`}
       />
-      <OverviewStat title="Highest Rank" value={data?.ranked?.max_rank} />
       <div style={{ gridColumn: "1/-1", padding: "0 16px" }}>
         <Typography variant="h5">Casual</Typography>
         <Divider />
