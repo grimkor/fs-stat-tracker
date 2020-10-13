@@ -3,7 +3,6 @@ import {Divider, Typography} from "@material-ui/core";
 import OverviewStat from "../../components/OverviewStat";
 import {useIpcRequest} from "../../helpers/useIpcRequest";
 
-
 interface Stats {
   ranked: {
     wins: number;
@@ -31,9 +30,9 @@ const Overview: FC = () => {
         marginTop: 16,
       }}
     >
-      <div style={{ gridColumn: "1/-1"}}>
+      <div style={{gridColumn: "1/-1"}}>
         <Typography variant="h5">Ranked</Typography>
-        <Divider />
+        <Divider/>
       </div>
       <OverviewStat
         title="Win/Loss"
