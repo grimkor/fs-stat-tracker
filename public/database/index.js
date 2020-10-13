@@ -66,9 +66,9 @@ create unique index player_property_uindex
 `;
 
 const getDatabase = (callback) => {
-    const newDb = !fs.existsSync(path.join(homedir, "fs-log-parser.db"));
+    const newDb = !fs.existsSync(path.join(homedir, "fs-stat-tracker.db"));
     const db = new sqlite3.Database(
-        path.join(homedir, "fs-log-parser.db"),
+        path.join(homedir, "fs-stat-tracker.db"),
         (err) => {
             if (!err && newDb) {
                 db.serialize(() => {

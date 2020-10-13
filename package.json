@@ -1,5 +1,5 @@
 {
-  "name": "fs-log-parser",
+  "name": "fs-stat-tracker",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
