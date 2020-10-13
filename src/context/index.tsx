@@ -1,50 +1,50 @@
-import React, { createContext, FC, useEffect, useReducer } from "react";
-import { Config, Context, Status } from "../types";
-import reducer, { Actions } from "./reducer";
+import React, {createContext, Dispatch, FC, useEffect, useReducer,} from "react";
+import {Config, Context, Player} from "../types";
+import reducer, {Actions, ActionTypes} from "./reducer";
+import {useIpcRequest} from "../helpers/useIpcRequest";
 
-const { ipcRenderer } = window.require("electron");
+const {ipcRenderer} = window.require("electron");
 
 const defaultContext: Context = {
-  matchType: "casual",
-  status: "Disconnected",
   player: {
-    rank: "-",
-    winrate: 0,
-  },
-  opponent: {
     name: "-",
+    rank: "-",
   },
   config: {
-    playerName: "-",
     logFile: "",
   },
 };
 
 export const AppContext = createContext<Context>(defaultContext);
 
-const { Provider } = AppContext;
+const {Provider} = AppContext;
 
-export const AppProvider: FC = ({ children }) => {
+function useIpcDispatchRequest<T>(
+  endpoint: string,
+  action: Actions,
+  dispatch: Dispatch<ActionTypes>
+) {
+  const {data} = useIpcRequest<T>(endpoint);
+  useEffect(() => {
+    if (data) {
+      // @ts-ignore
+      dispatch({type: action, payload: data});
+    }
+  }, [data, dispatch]);
+}
+
+export const AppProvider: FC = ({children}) => {
   const [state, dispatch] = useReducer(reducer, defaultContext);
+
+  useIpcDispatchRequest<Player>("get_player", Actions.set_player, dispatch);
+  useIpcDispatchRequest<Config>("get_config", Actions.set_config, dispatch);
+
   useEffect(() => {
     ipcRenderer.send("subscribe");
-    ipcRenderer.send("get_config");
-    ipcRenderer.on("get_config_reply", (event: unknown, payload: Config) => {
-      dispatch({ type: Actions.set_config, payload });
-    });
-
-    ipcRenderer.on("status", (event: unknown, payload: Status) => {
-      dispatch({ type: Actions.status, payload });
-    });
-
-    ipcRenderer.on("authenticated", (event: unknown, payload: string) => {
-      dispatch({ type: Actions.authenticated, payload });
-    });
     return () => {
-      ipcRenderer.removeListener("authenticated");
+      ipcRenderer.removeListener("update");
       return ipcRenderer.send("unsubscribe");
     };
   }, []);
-
   return <Provider value={state}>{children}</Provider>;
 };

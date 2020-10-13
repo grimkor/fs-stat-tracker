@@ -1,7 +1,7 @@
-import { AppBar, Toolbar, Typography } from "@material-ui/core";
-import React, { FC, useContext } from "react";
+import {AppBar, Toolbar, Typography} from "@material-ui/core";
+import React, {FC, useContext} from "react";
 import NavButton from "../../components/NavButton";
-import { AppContext } from "../../context";
+import {AppContext} from "../../context";
 import NavButtonGroup from "../../components/NavButtonGroup";
 
 const NavBar: FC = () => {
@@ -10,11 +10,11 @@ const NavBar: FC = () => {
     <AppBar position="static">
       <Toolbar>
         <NavButtonGroup>
-          <NavButton label="Overview" route="/overview" />
+          <NavButton label="Overview" route="/overview"/>
           {/*<NavButton label="History" route="/history" />*/}
-          <NavButton label="Settings" route="/settings" />
+          <NavButton label="Settings" route="/settings"/>
         </NavButtonGroup>
-        <Typography variant="h6">{context.config.playerName}</Typography>
+        <Typography variant="h6">{context.player.name}</Typography>
       </Toolbar>
     </AppBar>
   );
