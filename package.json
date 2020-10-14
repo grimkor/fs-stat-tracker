@@ -1,20 +1,81 @@
 {
-  "name": "fs_log_parser",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "name": "fs-stat-tracker",
+  "author": {
+    "name": "David Sturman",
+    "url": "https://github.com/grimkor"
   },
-  "author": "",
-  "license": "ISC",
+  "license": "MIT",
+  "version": "0.1.0",
+  "private": true,
   "dependencies": {
+    "@material-ui/core": "^4.11.0",
+    "@material-ui/icons": "^4.9.1",
+    "electron-is-dev": "^1.2.0",
+    "fontsource-roboto": "^3.0.3",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "react-router-dom": "^5.2.0",
+    "react-scripts": "3.4.3",
+    "sqlite3": "^5.0.0",
     "tail": "^2.0.4",
-    "text-file-follower": "^0.1.0"
+    "typescript": "~3.7.2"
+  },
+  "scripts": {
+    "react-start": "react-scripts start",
+    "react-build": "react-scripts build",
+    "react-test": "react-scripts test --env=jsdom",
+    "react-eject": "react-scripts eject",
+    "electron-build": "electron-builder",
+    "release": "yarn react-build && electron-builder --publish=always",
+    "build": "yarn react-build && yarn electron-build",
+    "start": "concurrently \"cross-env BROWSER=none yarn react-start\" \"wait-on http://localhost:3000 && electron .\""
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   },
   "devDependencies": {
-    "@types/node": "^14.6.4",
+    "@testing-library/jest-dom": "^4.2.4",
+    "@testing-library/react": "^9.3.2",
+    "@testing-library/user-event": "^7.1.2",
+    "@types/react-router-dom": "^5.1.5",
+    "@types/electron": "^1.6.10",
+    "@types/jest": "^24.0.0",
+    "@types/node": "^14.10.0",
+    "@types/react": "^16.9.0",
+    "@types/react-dom": "^16.9.0",
+    "@types/sqlite3": "^3.1.6",
+    "concurrently": "^5.3.0",
+    "cross-env": "^7.0.2",
+    "electron": "^10.1.1",
+    "electron-builder": "^22.8.0",
     "prettier": "^2.1.1",
-    "typescript": "^4.0.2"
+    "wait-on": "^5.2.0"
+  },
+  "main": "public/electron.js",
+  "homepage": "./",
+  "build": {
+    "appId": "com.example.electron-cra",
+    "files": [
+      "build/**/*",
+      "node_modules/**/*"
+    ],
+    "directories": {
+      "buildResources": "assets"
+    },
+    "win": {
+      "target": "portable"
+    }
   }
 }
