@@ -1,8 +1,12 @@
+Current release: [Click here](https://github.com/grimkor/fs-stat-tracker/releases)
+
 # FS Stat Tracker
 
 FS Stat Tracker is a stat tracker for Fantasy Strike. By running in the background the FS Stat Tracker will record match and game results as they occur feeding back win:loss and rank for ranked and casual.
 
 FS Stat Tracker achieves this by reading the game logs and storing results in a local database. All data is stored locally and not shared over the internet.
+
+![Screenshot](img/fs-stat-tracker_overview.png)
 
 ## Installation
 
