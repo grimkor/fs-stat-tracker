@@ -5,74 +5,78 @@
     "url": "https://github.com/grimkor"
   },
   "license": "MIT",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "dependencies": {
     "@material-ui/core": "^4.11.0",
     "@material-ui/icons": "^4.9.1",
+    "@types/tail": "^2.0.0",
     "electron-is-dev": "^1.2.0",
     "fontsource-roboto": "^3.0.3",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-router-dom": "^5.2.0",
-    "react-scripts": "3.4.3",
     "sqlite3": "^5.0.0",
-    "tail": "^2.0.4",
-    "typescript": "~3.7.2"
+    "tail": "^2.0.4"
   },
   "scripts": {
-    "react-start": "react-scripts start",
-    "react-build": "react-scripts build",
-    "react-test": "react-scripts test --env=jsdom",
-    "react-eject": "react-scripts eject",
     "electron-build": "electron-builder",
     "release": "yarn react-build && electron-builder --publish=always",
-    "build": "yarn react-build && yarn electron-build",
-    "start": "concurrently \"cross-env BROWSER=none yarn react-start\" \"wait-on http://localhost:3000 && electron .\""
+    "build": "yarn build:electron && yarn build:react && yarn electron-build",
+    "start": "concurrently \"cross-env BROWSER=none yarn dev:react\" \"wait-on http://localhost:3000 && yarn dev:electron \"",
+    "dev:electron": "cross-env NODE_ENV=development webpack --config webpack/electron.webpack.js --mode development && electron .",
+    "dev:react": "cross-env NODE_ENV=development webpack-dev-server --config webpack/react.webpack.js --mode development",
+    "build:electron": "webpack --config webpack/electron.webpack.js --mode production",
+    "build:react": "webpack --config webpack/react.webpack.js --mode production",
+    "build:package": "electron-builder"
   },
   "eslintConfig": {
     "extends": "react-app"
   },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
   "devDependencies": {
+    "@babel/core": "^7.9.0",
+    "@babel/preset-env": "^7.9.5",
+    "@babel/preset-react": "^7.9.4",
+    "@babel/preset-typescript": "^7.9.0",
+    "@testing-library/dom": "^7.26.0",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
-    "@types/react-router-dom": "^5.1.5",
     "@types/electron": "^1.6.10",
     "@types/jest": "^24.0.0",
-    "@types/node": "^14.10.0",
+    "@types/node": "^14.11.8",
     "@types/react": "^16.9.0",
     "@types/react-dom": "^16.9.0",
+    "@types/react-router-dom": "^5.1.5",
     "@types/sqlite3": "^3.1.6",
+    "babel-loader": "8.1.0",
     "concurrently": "^5.3.0",
     "cross-env": "^7.0.2",
+    "css-loader": "^5.0.0",
     "electron": "^10.1.1",
     "electron-builder": "^22.8.0",
+    "file-loader": "^6.1.1",
+    "html-webpack-plugin": "^4.2.0",
     "prettier": "^2.1.1",
-    "wait-on": "^5.2.0"
+    "resolve-url-loader": "^3.1.1",
+    "style-loader": "^2.0.0",
+    "ts-loader": "^8.0.5",
+    "typescript": "3.9.5",
+    "wait-on": "^5.2.0",
+    "webpack": "^4.42.1",
+    "webpack-cli": "^3.3.11",
+    "webpack-dev-server": "^3.11.0"
   },
-  "main": "public/electron.js",
-  "homepage": "./",
+  "main": "./dist/electron/main.js",
   "build": {
     "appId": "com.example.electron-cra",
     "files": [
-      "build/**/*",
-      "node_modules/**/*"
+      "dist/**",
+      "package.json"
     ],
     "directories": {
-      "buildResources": "assets"
+      "buildResources": "assets",
+      "output": "packages"
     },
     "win": {
       "target": "portable"

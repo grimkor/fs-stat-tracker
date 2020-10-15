@@ -56,7 +56,7 @@ After running go to config and point to the log file. This is typically found in
 \
 `yarn build`
 
-Output should be in _<project_root>/dist_
+Output should be in _<project_root>/packages_
 
 ### TODO
 
@@ -66,6 +66,7 @@ Output should be in _<project_root>/dist_
     - ~~rank~~
     - ~~max rank~~
     - ~~player name~~
+- ~~Move Electron to TypeScript~~
 - crash logs
 - tests
 - match history tab

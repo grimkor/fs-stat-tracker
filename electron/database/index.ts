@@ -1,3 +1,14 @@
+import { Database } from "sqlite3";
+import {
+  Config,
+  DatabaseCallback,
+  DatabaseInput,
+  Game,
+  Match,
+  Player, SetPlayerInput,
+  WinLoss,
+} from "../types";
+
 const sqlite3 = require("sqlite3");
 const fs = require("fs");
 const path = require("path");
@@ -65,135 +76,139 @@ create unique index player_property_uindex
     on player (property);
 `;
 
-const getDatabase = (callback) => {
-    const newDb = !fs.existsSync(path.join(homedir, "fs-stat-tracker.db"));
-    const db = new sqlite3.Database(
-        path.join(homedir, "fs-stat-tracker.db"),
-        (err) => {
-            if (!err && newDb) {
-                db.serialize(() => {
-                    db.run(createConfigTable);
-                    db.run(createMatchTable);
-                    db.run(createGameTable);
-                    db.run(createPlayerTable);
-                    callback(err, db);
-                });
-            } else {
-                callback(err, db);
-            }
-        }
-    );
-    return db;
-};
-
-const getColumns = (table, callback) => {
-    getDatabase((err, db) => {
-        db.all(`pragma table_info(${table})`, (err, result) => {
-            callback(err, result);
-        });
-    });
-};
-
-const getConfig = (callback) => {
-    getDatabase((err, db) => {
-        db.all(`SELECT * from config`, callback);
-    });
-};
-
-const setConfig = (config, callback) => {
-    getDatabase((err, db) => {
+const getDatabase = (callback: (err: Error | null, db: Database) => void) => {
+  const newDb = !fs.existsSync(path.join(homedir, "fs-stat-tracker.db"));
+  const db = new sqlite3.Database(
+    path.join(homedir, "fs-stat-tracker.db"),
+    (err: Error | null) => {
+      if (!err && newDb) {
         db.serialize(() => {
-            const statement = db.prepare(`
+          db.run(createConfigTable);
+          db.run(createMatchTable);
+          db.run(createGameTable);
+          db.run(createPlayerTable);
+          callback(err, db);
+        });
+      } else {
+        callback(err, db);
+      }
+    }
+  );
+  return db;
+};
+
+const getConfig = (callback: DatabaseCallback<Config[]>) => {
+  getDatabase((err, db) => {
+    db.all(`SELECT * from config`, callback);
+  });
+};
+
+const setConfig = (
+  config: DatabaseInput,
+  callback: DatabaseCallback<undefined>
+) => {
+  getDatabase((err, db) => {
+    db.serialize(() => {
+      const statement = db.prepare(`
     INSERT OR REPLACE INTO config 
     (setting, value) VALUES (?, ?)
     `);
-            Object.entries(config).forEach(([key, value]) =>
-                statement.run(key, value)
-            );
-            statement.finalize(callback);
-        });
+      Object.entries(config).forEach(([key, value]) =>
+        statement.run(key, value)
+      );
+      statement.finalize(callback);
     });
+  });
 };
 
-const getPlayer = (callback) => {
-    getDatabase((err, db) => {
-        db.all(`SELECT * from player`, callback);
-    });
+const getPlayer = (callback: DatabaseCallback<Player[]>) => {
+  getDatabase((err, db) => {
+    db.all(`SELECT * from player`, callback);
+  });
 };
 
-const setPlayer = (player, callback) => {
-    getDatabase((err, db) => {
-        db.serialize(() => {
-            const statement = db.prepare(`
+const setPlayer = (
+  player: SetPlayerInput,
+  callback?: DatabaseCallback<undefined>
+) => {
+  getDatabase((err, db) => {
+    db.serialize(() => {
+      const statement = db.prepare(`
     INSERT OR REPLACE INTO player 
     (property, value) VALUES (?, ?)
     `);
-            Object.entries(player).forEach(([key, value]) =>
-                statement.run(key, value)
-            );
-            statement.finalize(callback);
-        });
+      Object.entries(player).forEach(([key, value]) =>
+        statement.run(key, value)
+      );
+      statement.finalize(callback);
     });
+  });
 };
 
-const insertMatch = (match, callback) => {
-    getDatabase((err, db) => {
-        db.serialize(function () {
-            db.run(
-                `
+const insertMatch = (
+  match: Match,
+  callback: DatabaseCallback<{ id: string }>
+) => {
+  getDatabase((err, db) => {
+    db.serialize(function () {
+      db.run(
+        `
     INSERT OR IGNORE INTO match
     (match_id, match_type, player_league, player_rank, player_stars, opp_id, opp_name, opp_platform, opp_platform_id, opp_input_config, opp_league, opp_rank)
     VALUES
     (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `,
-                [
-                    match.matchId,
-                    match.matchType,
-                    match.playerLeague,
-                    match.playerRank,
-                    match.playerStars,
-                    match.oppId,
-                    match.oppName,
-                    match.oppPlatform,
-                    match.oppPlatformId,
-                    match.oppInputConfig,
-                    match.oppLeague,
-                    match.oppRank,
-                ]
-            );
-            db.get("SELECT last_insert_rowid() as id from match", callback);
-        });
+        [
+          match.matchId,
+          match.matchType,
+          match.playerLeague,
+          match.playerRank,
+          match.playerStars,
+          match.oppId,
+          match.oppName,
+          match.oppPlatform,
+          match.oppPlatformId,
+          match.oppInputConfig,
+          match.oppLeague,
+          match.oppRank,
+        ]
+      );
+      db.get("SELECT last_insert_rowid() as id from match", callback);
+    });
   });
 };
 
-const insertGameResult = (game, callback) => {
-    getDatabase((err, db) => {
-        db.serialize(() => {
-            db.run(
-                `
+const insertGameResult = (
+  game: Game,
+  callback: DatabaseCallback<undefined>
+) => {
+  getDatabase((err, db) => {
+    db.serialize(() => {
+      db.run(
+        `
       INSERT INTO game
       (match_id, player_character, opp_character, player_score, opp_score)
       VALUES
       (?,?,?,?,?)
     `,
-                [
-                    game.match_id,
-                    game.player_character,
-                    game.opp_character,
-                    game.player_score,
-                    game.opp_score,
-                ],
-                callback
-            );
-        });
+        [
+          game.match_id,
+          game.player_character,
+          game.opp_character,
+          game.player_score,
+          game.opp_score,
+        ],
+        callback
+      );
+    });
   });
 };
 
-const getWinLoss = (callback) => {
-    getDatabase((err, db) => {
-        db.serialize(() => {
-            db.all(
-                `
+const getWinLoss = (callback: DatabaseCallback<WinLoss[]>) => {
+  getDatabase((err, db) => {
+    db.serialize(() => {
+      db.all(
+        `
         select count(id)                                              as total,
                sum(case when win > lose then 1 else 0 end)            as wins,
                sum(case when win < lose then 1 else 0 end)            as losses,
@@ -216,18 +231,18 @@ const getWinLoss = (callback) => {
              ) x
         group by x.match_type;
     `,
-                callback
-            );
-        });
+        callback
+      );
+    });
   });
 };
 
-module.exports = {
-    getConfig,
-    setConfig,
-    getPlayer,
-    setPlayer,
-    getWinLoss,
-    insertGameResult,
-    insertMatch,
+export default {
+  getConfig,
+  setConfig,
+  getPlayer,
+  setPlayer,
+  getWinLoss,
+  insertGameResult,
+  insertMatch,
 };
