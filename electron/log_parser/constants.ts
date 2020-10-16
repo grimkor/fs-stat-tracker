@@ -1,4 +1,4 @@
-const Actions = {
+export const Actions = {
   authenticated: "authenticated",
   game_result: "game_result",
   match_result: "match_result",
@@ -8,9 +8,7 @@ const Actions = {
   update: "update",
 };
 
-const MatchType = {
+export const MatchType = {
   ranked: "ranked",
   casual: "casual",
 };
-
-module.exports = { Actions, MatchType };
