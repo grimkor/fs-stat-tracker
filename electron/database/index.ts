@@ -1,13 +1,5 @@
-import { Database } from "sqlite3";
-import {
-  Config,
-  DatabaseCallback,
-  DatabaseInput,
-  Game,
-  Match,
-  Player, SetPlayerInput,
-  WinLoss,
-} from "../types";
+import {Database} from "sqlite3";
+import {Config, DatabaseCallback, DatabaseInput, Game, Match, Player, SetPlayerInput, WinLoss,} from "../types";
 
 const sqlite3 = require("sqlite3");
 const fs = require("fs");
@@ -150,31 +142,48 @@ const insertMatch = (
   callback: DatabaseCallback<{ id: string }>
 ) => {
   getDatabase((err, db) => {
-    db.serialize(function () {
-      db.run(
-        `
+    db.get(
+      `
+      SELECT m.id, m.match_id, m.match_type,
+          (case when m.match_type = 'ranked' then 4 else 2 end) as max_games
+      FROM match m
+      WHERE m.match_id = ?
+        AND match_type != 'challenge'
+      GROUP BY m.match_id
+      HAVING count(*) > max_games
+    `,
+      [match.matchId],
+      (err, res) => {
+        if (res) {
+          return;
+        }
+        db.run(
+          `
     INSERT OR IGNORE INTO match
     (match_id, match_type, player_league, player_rank, player_stars, opp_id, opp_name, opp_platform, opp_platform_id, opp_input_config, opp_league, opp_rank)
     VALUES
     (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `,
-        [
-          match.matchId,
-          match.matchType,
-          match.playerLeague,
-          match.playerRank,
-          match.playerStars,
-          match.oppId,
-          match.oppName,
-          match.oppPlatform,
-          match.oppPlatformId,
-          match.oppInputConfig,
-          match.oppLeague,
-          match.oppRank,
-        ]
-      );
-      db.get("SELECT last_insert_rowid() as id from match", callback);
-    });
+          [
+            match.matchId,
+            match.matchType,
+            match.playerLeague,
+            match.playerRank,
+            match.playerStars,
+            match.oppId,
+            match.oppName,
+            match.oppPlatform,
+            match.oppPlatformId,
+            match.oppInputConfig,
+            match.oppLeague,
+            match.oppRank,
+          ],
+          () => {
+            db.get("SELECT last_insert_rowid() as id from match", callback);
+          }
+        );
+      }
+    );
   });
 };
 

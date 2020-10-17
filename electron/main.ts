@@ -15,7 +15,7 @@ function createWindow() {
     },
   });
   if (electronIsDev) {
-    mainWindow.loadURL("http://localhost:4000");
+    mainWindow.loadURL("http://localhost:3000");
   } else {
     mainWindow.loadURL(
       url.format({

@@ -1,22 +1,19 @@
-import { ChildProcess } from "child_process";
-import { Tail } from "tail";
-
-const { MatchType } = require("./constants");
-const { Actions } = require("./constants");
+import {ChildProcess} from "child_process";
+import {Tail} from "tail";
 import {
   authenticated,
-  gameResult,
   casualMatchFound,
+  challengeMatchFound,
+  gameResult,
   rankedData,
   rankedMatchFound,
   rematchFound,
 } from "./matchers";
 import db from "../database";
-import {
-  CasualMatchResult,
-  GameResultMatch, RankedDataResult,
-  RankedMatchResult,
-} from "../types";
+import {CasualMatchResult, GameResultMatch, RankedDataResult, RankedMatchResult,} from "../types";
+
+const {MatchType} = require("./constants");
+const {Actions} = require("./constants");
 
 class LogParser {
   process: ChildProcess;
@@ -50,7 +47,8 @@ class LogParser {
       useWatchFile: true,
     });
     this.tail.on("line", this.processLine.bind(this));
-    this.tail.on("error", function (error) {});
+    this.tail.on("error", function () {
+    });
 
     db.getConfig((err, result) => {
       if (!err && result?.find((x) => x.setting === "playerName")) {
@@ -88,17 +86,19 @@ class LogParser {
         const name = authenticated(line);
         if (name && this.player.name !== name) {
           this.player.name = name;
-          db.setPlayer({ name: this.player.name });
+          db.setPlayer({name: this.player.name});
         }
         this.process.send([Actions.update, this.player.name]);
       }
-      if (casualMatchFound(line)) {
+      const casualMatch = casualMatchFound(line);
+      const challengeMatch = challengeMatchFound(line);
+      if (casualMatch || challengeMatch) {
         this.setDefaultState();
-        const metaData = casualMatchFound(line) as CasualMatchResult;
+        const metaData = (casualMatch ?? challengeMatch) as CasualMatchResult;
+        this.matchType = casualMatch ? MatchType.casual : MatchType.challenge;
         this.opponent.name = metaData.oppName;
         this.opponent.id = metaData.oppPlayerId;
         this.matchMetaData = metaData;
-        this.matchType = MatchType.casual;
         db.insertMatch(
           {
             matchId: this.matchMetaData.gameplayRandomSeed,
@@ -122,7 +122,7 @@ class LogParser {
                 {
                   player: this.player,
                   opponent: this.opponent,
-                  matchType: MatchType.casual,
+                  matchType: this.matchType,
                 },
               ]);
             } else {
@@ -167,7 +167,10 @@ class LogParser {
           }
         );
       }
-      if (rematchFound(line) && this.matchType === MatchType.casual) {
+      if (
+        rematchFound(line) &&
+        [MatchType.casual, MatchType.challenge].includes(this.matchType)
+      ) {
         db.insertMatch(
           {
             matchId: this.matchMetaData?.gameplayRandomSeed ?? "",
@@ -188,6 +191,7 @@ class LogParser {
               this.process.send(["ERROR", err.message]);
             } else if (data) {
               this.matchId = data.id;
+              this.process.send(["rematch found", this.matchId]);
             }
           }
         );
@@ -206,7 +210,7 @@ class LogParser {
             player_score: String(player.score),
             opp_score: String(opponent.score),
           },
-          (err, res) => err && this.process.send(["ERR:", err.message])
+          (err) => err && this.process.send(["ERR:", err.message])
         );
         this.process.send([
           Actions.update,
