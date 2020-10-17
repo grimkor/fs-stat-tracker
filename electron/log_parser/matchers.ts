@@ -1,11 +1,5 @@
-import {
-  CasualMatchResult,
-  GameResultMatch,
-  RankedDataResult,
-  RankedMatchResult,
-} from "../types";
+import {CasualMatchResult, GameResultMatch, RankedDataResult, RankedMatchResult,} from "../types";
 
-const { Actions } = require("./constants");
 export const authenticated = (line: string) => {
   try {
     if (line.match(/\[\|authsucceeded:/i)) {
@@ -32,7 +26,7 @@ export const gameResult = (line: string): GameResultMatch | undefined => {
         const players = playerMatches
           .map((x) => x[0])
           .map((result, index) => {
-            let [trash, player, character] = result.split(/\s\[|\]\s/i);
+            let [, player, character] = result.split(/\s\[|\]\s/i);
             player = player.replace(/(\[|\]|\*)/gi, "");
             return { player, character, score: Number(score?.[index]) };
           });
@@ -63,7 +57,21 @@ export const casualMatchFound = (
     const properties = line.matchAll(/\w*:\w*/gi);
     return [...properties].reduce((acc, prop) => {
       const [key, value] = prop[0].split(":");
-      return key ? { ...acc, [key]: value } : acc;
+      return key ? {...acc, [key]: value} : acc;
+    }, {} as CasualMatchResult);
+  }
+};
+
+export const challengeMatchFound = (
+  line: string
+): CasualMatchResult | undefined => {
+  const match = line.match(/\[\|joinchallenge:/i);
+  if (match) {
+    const split = line.split(/\[\|joinchallenge:/i);
+    const properties = split[1].matchAll(/\w*:\w*/gi);
+    return [...properties].reduce((acc, prop) => {
+      const [key, value] = prop[0].split(":");
+      return key ? {...acc, [key]: value} : acc;
     }, {} as CasualMatchResult);
   }
 };
@@ -113,7 +121,7 @@ export const rankedData = (line: string): RankedDataResult | undefined => {
   if (line.match(/\[\|rankeddata/i)) {
     const match = line.match(/\[\|rankeddata.*\]/i)?.[0];
     if (match) {
-      const [trash, league, rank] = match.split(":");
+      const [, league, rank] = match.split(":");
       return {
         league,
         rank,

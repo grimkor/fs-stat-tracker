@@ -11,4 +11,5 @@ export const Actions = {
 export const MatchType = {
   ranked: "ranked",
   casual: "casual",
+  challenge: "challenge",
 };
