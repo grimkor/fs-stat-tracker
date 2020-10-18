@@ -61,3 +61,5 @@ Output should be in _<project_root>/packages_
 ## Issues & Bugs
 
 If you run into any issues or bugs with the FS Stat Tracker then I urge you to raise an [issue](https://github.com/grimkor/fs-stat-tracker/issues/new) on this GitHub project and attach the output logs found at _%USERPROFILE%/fs-stat-tracker.log_. Please note this file resets every time the FS Stat Tracker is ran, so for the logs to be pertinent they must be from the last time the issue/bug occurred without re-running the application.
+
+Alternatively I am on the Fantasy Strike Discord as @Grimbakor.
