@@ -1,4 +1,4 @@
-export type DatabaseCallback<T> = (error: Error | null, data?: T) => void;
+export type DatabaseCallback<T> = (data?: T) => void;
 
 export interface Config {
   setting: string;

@@ -1,28 +1,28 @@
 import fs from "fs";
-import { ChildProcess, fork } from "child_process";
-import { ipcMain, IpcMainEvent } from "electron";
+import {ChildProcess, fork} from "child_process";
+import {ipcMain, IpcMainEvent} from "electron";
 import db from "../database";
 import path from "path";
+import Logger from "../logger";
 
 class Backend {
   process: ChildProcess | null;
   subscriptions: { id: number; event: IpcMainEvent }[];
+  logger: Logger;
 
   constructor() {
     this.subscriptions = [];
     this.process = null;
+    this.logger = new Logger();
   }
 
-  startLogger() {
+  startLogParser() {
     try {
-      this.stopLogger();
-      db.getConfig((err, data) => {
-        if (err) {
-          throw err;
-        }
+      this.stopLogParser();
+      db.getConfig((data) => {
         if (data) {
           const config = data.reduce(
-            (obj, row) => ({ ...obj, [row.setting]: row.value }),
+            (obj, row) => ({...obj, [row.setting]: row.value}),
             {} as { [key: string]: string }
           );
           if (fs.existsSync(config.logFile)) {
@@ -36,28 +36,35 @@ class Backend {
                 }
               );
             } catch (e) {
-              throw e;
+              this.logger.writeError("startLogParser", e);
             }
-            this.process.on("error", (e) =>
-              console.error("error", e?.message ?? e)
-            );
-            this.process.on("close", (e) => console.log("close", e));
-            this.process.on("disconnect", () => console.log("disconnected"));
-            this.process.on("exit", (e) => console.log("exit", e));
+            if (this.process) {
+              const processEvent = (type: string) => (e: Error) =>
+                this.logger.writeLine("LogParser", "error", e.message ?? e);
 
-            this.process.on("message", ([action, message]) => {
-              console.log("message", action, message);
-              this.route(action, message);
-            });
+              this.process.on("error", processEvent("error"));
+              this.process.on("close", processEvent("close"));
+              this.process.on("disconnect", processEvent("disconnect"));
+              this.process.on("exit", processEvent("exit"));
+
+              this.process.on("message", ([action, message]) => {
+                this.logger.writeLine(
+                  "message",
+                  action,
+                  JSON.stringify(message)
+                );
+                this.route(action, message);
+              });
+            }
           }
         }
       });
     } catch (e) {
-      throw e;
+      this.logger.writeError("startLogParser", e);
     }
   }
 
-  stopLogger() {
+  stopLogParser() {
     if (this.process) {
       this.process.kill();
     }
@@ -74,26 +81,21 @@ class Backend {
   }
 
   run() {
-    this.startLogger();
+    this.startLogParser();
     ipcMain.on("subscribe", (event) => {
-      console.log("subscribe", event.frameId);
       this.addSubscription(event.frameId, event);
       event.reply("status", "Connected");
     });
 
     ipcMain.on("unsubscribe", (event) => {
-      console.log("unsubscribe", event.frameId);
       this.removeSubscription(event.frameId);
     });
 
     ipcMain.on("get_config", (event) => {
-      db.getConfig((err, data) => {
-        if (err) {
-          throw err;
-        }
-        if (!err && data) {
+      db.getConfig((data) => {
+        if (data) {
           const config = data.reduce((obj, row) => {
-            return { ...obj, [row.setting]: row.value };
+            return {...obj, [row.setting]: row.value};
           }, {});
           event.reply("get_config_reply", config);
         }
@@ -102,19 +104,16 @@ class Backend {
 
     ipcMain.on("set_config", (event, args) => {
       db.setConfig(args, () => {
-        this.startLogger();
+        this.startLogParser();
         this.route("update", "");
       });
     });
 
     ipcMain.on("get_player", (event) => {
-      db.getPlayer((err, data) => {
-        if (err) {
-          throw new Error(err.message);
-        }
-        if (!err && data) {
+      db.getPlayer((data) => {
+        if (data) {
           const player = data.reduce((obj, row) => {
-            return { ...obj, [row.property]: row.value };
+            return {...obj, [row.property]: row.value};
           }, {});
           event.reply("get_player_reply", player);
         }
@@ -122,15 +121,12 @@ class Backend {
     });
 
     ipcMain.on("get_stats", (event) => {
-      db.getWinLoss((err, data) => {
-        if (err) {
-          throw new Error(err.message);
-        }
-        if (!err && data) {
+      db.getWinLoss((data) => {
+        if (data) {
           const replyObj = data.reduce(
             (obj, row) => ({
               ...obj,
-              [row.match_type]: { ...row },
+              [row.match_type]: {...row},
             }),
             {}
           );
@@ -141,7 +137,6 @@ class Backend {
   }
 
   route(action: string, message: string) {
-    console.log(action, message);
     this.subscriptions.forEach((sub) => sub.event.reply(action, message));
   }
 }

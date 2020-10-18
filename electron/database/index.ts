@@ -1,11 +1,14 @@
 import {Database} from "sqlite3";
 import {Config, DatabaseCallback, DatabaseInput, Game, Match, Player, SetPlayerInput, WinLoss,} from "../types";
+import Logger from "../logger";
 
 const sqlite3 = require("sqlite3");
 const fs = require("fs");
 const path = require("path");
-
 const homedir = require("os").homedir();
+
+const logger = new Logger();
+logger.writeLine(path.join(homedir, "fs-stat-tracker.db"));
 const createGameTable = `
 create table IF NOT EXISTS game
 (
@@ -68,21 +71,25 @@ create unique index player_property_uindex
     on player (property);
 `;
 
-const getDatabase = (callback: (err: Error | null, db: Database) => void) => {
+const getDatabase = (callback: (db: Database) => void) => {
   const newDb = !fs.existsSync(path.join(homedir, "fs-stat-tracker.db"));
   const db = new sqlite3.Database(
     path.join(homedir, "fs-stat-tracker.db"),
     (err: Error | null) => {
-      if (!err && newDb) {
+      if (err) {
+        logger.writeLine("getDatabase", err.name, err.message);
+        return;
+      }
+      if (newDb) {
         db.serialize(() => {
           db.run(createConfigTable);
           db.run(createMatchTable);
           db.run(createGameTable);
           db.run(createPlayerTable);
-          callback(err, db);
+          callback(db);
         });
       } else {
-        callback(err, db);
+        callback(db);
       }
     }
   );
@@ -90,8 +97,11 @@ const getDatabase = (callback: (err: Error | null, db: Database) => void) => {
 };
 
 const getConfig = (callback: DatabaseCallback<Config[]>) => {
-  getDatabase((err, db) => {
-    db.all(`SELECT * from config`, callback);
+  getDatabase((db) => {
+    db.all(
+      `SELECT * from config`,
+      logger.withErrorHandling<Config[]>("getConfig", callback)
+    );
   });
 };
 
@@ -99,23 +109,35 @@ const setConfig = (
   config: DatabaseInput,
   callback: DatabaseCallback<undefined>
 ) => {
-  getDatabase((err, db) => {
-    db.serialize(() => {
-      const statement = db.prepare(`
+  getDatabase((db) => {
+    try {
+      db.serialize(() => {
+        const statement = db.prepare(
+          `
     INSERT OR REPLACE INTO config 
     (setting, value) VALUES (?, ?)
-    `);
-      Object.entries(config).forEach(([key, value]) =>
-        statement.run(key, value)
-      );
-      statement.finalize(callback);
-    });
+    `,
+          logger.withErrorHandling("setConfig")
+        );
+        Object.entries(config).forEach(([key, value]) =>
+          statement.run(key, value)
+        );
+        statement.finalize(
+          logger.withErrorHandling<undefined>("setConfig", callback)
+        );
+      });
+    } catch (e) {
+      logger.writeError("setConfig", e);
+    }
   });
 };
 
 const getPlayer = (callback: DatabaseCallback<Player[]>) => {
-  getDatabase((err, db) => {
-    db.all(`SELECT * from player`, callback);
+  getDatabase((db) => {
+    db.all(
+      `SELECT * from player`,
+      logger.withErrorHandling("getPlayer", callback)
+    );
   });
 };
 
@@ -123,7 +145,7 @@ const setPlayer = (
   player: SetPlayerInput,
   callback?: DatabaseCallback<undefined>
 ) => {
-  getDatabase((err, db) => {
+  getDatabase((db) => {
     db.serialize(() => {
       const statement = db.prepare(`
     INSERT OR REPLACE INTO player 
@@ -132,7 +154,9 @@ const setPlayer = (
       Object.entries(player).forEach(([key, value]) =>
         statement.run(key, value)
       );
-      statement.finalize(callback);
+      statement.finalize(
+        logger.withErrorHandling<undefined>("setPlayer", callback)
+      );
     });
   });
 };
@@ -141,7 +165,7 @@ const insertMatch = (
   match: Match,
   callback: DatabaseCallback<{ id: string }>
 ) => {
-  getDatabase((err, db) => {
+  getDatabase((db) => {
     db.get(
       `
       SELECT m.id, m.match_id, m.match_type,
@@ -153,7 +177,7 @@ const insertMatch = (
       HAVING count(*) > max_games
     `,
       [match.matchId],
-      (err, res) => {
+      logger.withErrorHandling("insertMatch", (res) => {
         if (res) {
           return;
         }
@@ -179,10 +203,13 @@ const insertMatch = (
             match.oppRank,
           ],
           () => {
-            db.get("SELECT last_insert_rowid() as id from match", callback);
+            db.get(
+              "SELECT last_insert_rowid() as id from match",
+              logger.withErrorHandling<{ id: string }>("insertMatch", callback)
+            );
           }
         );
-      }
+      })
     );
   });
 };
@@ -191,7 +218,7 @@ const insertGameResult = (
   game: Game,
   callback: DatabaseCallback<undefined>
 ) => {
-  getDatabase((err, db) => {
+  getDatabase((db) => {
     db.serialize(() => {
       db.run(
         `
@@ -207,14 +234,14 @@ const insertGameResult = (
           game.player_score,
           game.opp_score,
         ],
-        callback
+        logger.withErrorHandling<undefined>("insertGameResult", callback)
       );
     });
   });
 };
 
 const getWinLoss = (callback: DatabaseCallback<WinLoss[]>) => {
-  getDatabase((err, db) => {
+  getDatabase((db) => {
     db.serialize(() => {
       db.all(
         `
@@ -240,7 +267,7 @@ const getWinLoss = (callback: DatabaseCallback<WinLoss[]>) => {
              ) x
         group by x.match_type;
     `,
-        callback
+        logger.withErrorHandling("getWinLoss", callback)
       );
     });
   });

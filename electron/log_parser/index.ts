@@ -1,7 +1,8 @@
 import path from "path";
 import LogParser from "./LogParser";
-import fs from "fs";
+import Logger from "../logger";
 
+const logger = new Logger();
 
 // process.argv[2] == filePath
 const file = path.join(process.argv[2]);
@@ -12,6 +13,5 @@ try {
     Parser.run();
   }
 } catch (e) {
-  process.send?.(e);
-  // throw new Error(e);
+  logger.writeError("LogParser init", e);
 }
