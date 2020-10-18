@@ -3,6 +3,7 @@ import path from "path";
 import url from "url";
 import Backend from "./backend";
 import electronIsDev from "electron-is-dev";
+import Logger from "./logger";
 
 let mainWindow: BrowserWindow | null;
 
@@ -41,6 +42,7 @@ app.on("activate", () => {
   }
 });
 try {
+  new Logger().flushFile();
   const backend = new Backend();
   backend.run();
 } catch (e) {

@@ -9,7 +9,8 @@ import {
   rankedMatchFound,
 } from "./matchers";
 import db from "../database";
-import {CasualMatchResult, GameResultMatch, RankedDataResult, RankedMatchResult,} from "../types";
+import {CasualMatchResult, RankedMatchResult} from "../types";
+import Logger from "../logger";
 
 const {MatchType} = require("./constants");
 const {Actions} = require("./constants");
@@ -36,19 +37,23 @@ class LogParser {
   matchId: string | null;
   matchType: typeof MatchType;
   matchMetaData: CasualMatchResult | RankedMatchResult | undefined;
+  logger: Logger;
+
   constructor(file: string, process: ChildProcess) {
     this.process = process;
     this.file = file;
     this.setDefaultState();
+    this.logger = new Logger();
     this.tail = new Tail(this.file, {
       useWatchFile: true,
     });
     this.tail.on("line", this.processLine.bind(this));
-    this.tail.on("error", function () {
-    });
+    this.tail.on("error", (error) =>
+      this.logger.writeError("LogParser Tail", error)
+    );
 
-    db.getConfig((err, result) => {
-      if (!err && result?.find((x) => x.setting === "playerName")) {
+    db.getConfig((result) => {
+      if (result?.find((x) => x.setting === "playerName")) {
         this.player.name =
           result.find((x) => x.setting === "playerName")?.value ?? "";
       }
@@ -78,10 +83,10 @@ class LogParser {
 
   processLine(line: string) {
     try {
-      if (authenticated(line)) {
-        const name = authenticated(line);
-        if (name && this.player.name !== name) {
-          this.player.name = name;
+      const playerName = authenticated(line);
+      if (playerName) {
+        if (playerName && this.player.name !== playerName) {
+          this.player.name = playerName;
           db.setPlayer({name: this.player.name});
         }
         this.process.send([Actions.update, this.player.name]);
@@ -96,21 +101,21 @@ class LogParser {
         this.opponent.id = metaData.oppPlayerId;
         this.matchMetaData = metaData;
       }
-      if (rankedMatchFound(line)) {
+      const rankedMatchMetadata = rankedMatchFound(line);
+      if (rankedMatchMetadata) {
         this.setDefaultState();
-        const metaData = rankedMatchFound(line) as RankedMatchResult;
-        this.opponent.id = metaData.oppPlayerId;
-        this.opponent.name = metaData.oppName;
-        this.opponent.rank = metaData.oppRank;
-        this.opponent.league = metaData.oppLeague;
-        this.player.rank = metaData.playerRank;
-        this.player.league = metaData.playerLeague;
-        this.player.stars = metaData.playerStars;
-        this.matchMetaData = metaData;
+        this.opponent.id = rankedMatchMetadata.oppPlayerId;
+        this.opponent.name = rankedMatchMetadata.oppName;
+        this.opponent.rank = rankedMatchMetadata.oppRank;
+        this.opponent.league = rankedMatchMetadata.oppLeague;
+        this.player.rank = rankedMatchMetadata.playerRank;
+        this.player.league = rankedMatchMetadata.playerLeague;
+        this.player.stars = rankedMatchMetadata.playerStars;
+        this.matchMetaData = rankedMatchMetadata;
         this.matchType = MatchType.ranked;
       }
-      if (gameResult(line)) {
-        const game = gameResult(line) as GameResultMatch;
+      const game = gameResult(line);
+      if (game) {
         const playerWins = game.winner.player === this.player.name;
         const player = playerWins ? game.winner : game.loser;
         const opponent = playerWins ? game.loser : game.winner;
@@ -125,21 +130,17 @@ class LogParser {
               player_score: String(player.score),
               opp_score: String(opponent.score),
             },
-            (err) => {
-              if (err) {
-                this.process.send(["ERR:", err.message]);
-              } else {
-                this.process.send([
-                  Actions.update,
-                  {
-                    id: this.matchId,
-                    player_character: player.character,
-                    opp_character: opponent.character,
-                    player_score: player.score,
-                    opp_score: opponent.score,
-                  },
-                ]);
-              }
+            () => {
+              this.process.send([
+                Actions.update,
+                {
+                  id: this.matchId,
+                  player_character: player.character,
+                  opp_character: opponent.character,
+                  player_score: player.score,
+                  opp_score: opponent.score,
+                },
+              ]);
             }
           );
         } else {
@@ -158,10 +159,8 @@ class LogParser {
               oppLeague: this.opponent.league,
               oppRank: this.opponent.rank,
             },
-            (err, data) => {
-              if (err) {
-                this.process.send(["ERROR", err.message]);
-              } else if (data) {
+            (data) => {
+              if (data) {
                 this.matchId = data.id;
                 db.insertGameResult(
                   {
@@ -172,21 +171,17 @@ class LogParser {
                     player_score: String(player.score),
                     opp_score: String(opponent.score),
                   },
-                  (err) => {
-                    if (err) {
-                      this.process.send(["ERR:", err.message]);
-                    } else {
-                      this.process.send([
-                        Actions.update,
-                        {
-                          id: this.matchId,
-                          player_character: player.character,
-                          opp_character: opponent.character,
-                          player_score: player.score,
-                          opp_score: opponent.score,
-                        },
-                      ]);
-                    }
+                  () => {
+                    this.process.send([
+                      Actions.update,
+                      {
+                        id: this.matchId,
+                        player_character: player.character,
+                        opp_character: opponent.character,
+                        player_score: player.score,
+                        opp_score: opponent.score,
+                      },
+                    ]);
                   }
                 );
               }
@@ -194,14 +189,13 @@ class LogParser {
           );
         }
       }
-
-      if (rankedData(line)) {
-        const rank = rankedData(line) as RankedDataResult;
+      const rank = rankedData(line);
+      if (rank) {
         db.setPlayer(rank);
         this.process.send([Actions.update, rank]);
       }
     } catch (e) {
-      this.process.send(["error", e.message]);
+      this.logger.writeError("LogParser", e);
     }
   }
 }
