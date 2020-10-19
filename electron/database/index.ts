@@ -3,91 +3,16 @@ import {Config, DatabaseCallback, DatabaseInput, Game, Match, Player, SetPlayerI
 import Logger from "../logger";
 
 const sqlite3 = require("sqlite3");
-const fs = require("fs");
 const path = require("path");
 const homedir = require("os").homedir();
-
 const logger = new Logger();
-logger.writeLine(path.join(homedir, "fs-stat-tracker.db"));
-const createGameTable = `
-create table IF NOT EXISTS game
-(
-    player_character TEXT,
-    player_score     integer,
-    opp_character    TEXT,
-    opp_score        integer,
-    match_id         integer
-        references match,
-    constraint game_pk
-        unique (player_character, opp_character, match_id)
-);
-`;
 
-const createMatchTable = `
-create table IF NOT EXISTS match
-(
-    id               integer not null
-        constraint match_pk
-            primary key autoincrement,
-    match_id         TEXT not null,
-    timestamp        INTEGER default CURRENT_TIMESTAMP,
-    player_league    integer,
-    player_rank      integer,
-    player_stars     integer,
-    opp_id           integer,
-    opp_name         TEXT,
-    opp_platform     TEXT,
-    opp_platform_id  integer,
-    opp_input_config integer,
-    opp_league       integer,
-    opp_rank         integer,
-    match_type       TEXT
-);
-`;
-
-const createConfigTable = `
-create table IF NOT EXISTS config
-(
-    setting TEXT
-        constraint config_pk
-            primary key,
-    value   TEXT
-);
-
-create unique index config_setting_uindex
-    on config (setting);
-`;
-
-const createPlayerTable = `
-create table player
-(
-    property TEXT not null
-        constraint player_pk
-            primary key,
-    value    TEXT
-);
-
-create unique index player_property_uindex
-    on player (property);
-`;
-
-const getDatabase = (callback: (db: Database) => void) => {
-  const newDb = !fs.existsSync(path.join(homedir, "fs-stat-tracker.db"));
+export const getDatabase = (callback: (db: Database) => void) => {
   const db = new sqlite3.Database(
     path.join(homedir, "fs-stat-tracker.db"),
     (err: Error | null) => {
       if (err) {
-        logger.writeLine("getDatabase", err.name, err.message);
-        return;
-      }
-      if (newDb) {
-        db.serialize(() => {
-          db.run(createConfigTable);
-          db.run(createMatchTable);
-          db.run(createGameTable);
-          db.run(createPlayerTable);
-          callback(db);
-        });
+        logger.writeError("getDatabase", err.name, err.message);
       } else {
         callback(db);
       }
@@ -107,7 +32,7 @@ const getConfig = (callback: DatabaseCallback<Config[]>) => {
 
 const setConfig = (
   config: DatabaseInput,
-  callback: DatabaseCallback<undefined>
+  callback?: DatabaseCallback<undefined>
 ) => {
   getDatabase((db) => {
     try {
@@ -183,10 +108,22 @@ const insertMatch = (
         }
         db.run(
           `
-    INSERT OR IGNORE INTO match
-    (match_id, match_type, player_league, player_rank, player_stars, opp_id, opp_name, opp_platform, opp_platform_id, opp_input_config, opp_league, opp_rank)
-    VALUES
-    (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          INSERT OR IGNORE INTO match
+          (match_id, match_type, player_league, player_rank, player_stars, opp_id, opp_name, opp_platform, opp_platform_id,
+           opp_input_config, opp_league, opp_rank)
+          SELECT ?,
+                 (select id from match_type where type = ?),
+                 ?,
+                 ?,
+                 ?,
+                 ?,
+                 ?,
+                 ?,
+                 ?,
+                 ?,
+                 ?,
+                 ?
+          ;
   `,
           [
             match.matchId,
@@ -222,10 +159,8 @@ const insertGameResult = (
     db.serialize(() => {
       db.run(
         `
-      INSERT INTO game
-      (match_id, player_character, opp_character, player_score, opp_score)
-      VALUES
-      (?,?,?,?,?)
+        INSERT INTO game (player_character, player_score, opp_character, opp_score, match_id)
+        SELECT (select id from character where name = ?), ?, (select id from character where name = ?), ?, ?;
     `,
         [
           game.match_id,
@@ -245,14 +180,14 @@ const getWinLoss = (callback: DatabaseCallback<WinLoss[]>) => {
     db.serialize(() => {
       db.all(
         `
-        select count(id)                                              as total,
-               sum(case when win > lose then 1 else 0 end)            as wins,
-               sum(case when win < lose then 1 else 0 end)            as losses,
-               sum(case when win > lose AND last30 then 1 else 0 end) as wins30,
-               sum(case when win < lose AND last30 then 1 else 0 end) as losses30,
-               MIN(x.player_rank)                                     as max_rank,
-               (SELECT player_rank FROM match ORDER BY timestamp DESC limit 1)      as rank,
-               x.match_type
+        select count(x.id)                                                     as total,
+               sum(case when win > lose then 1 else 0 end)                     as wins,
+               sum(case when win < lose then 1 else 0 end)                     as losses,
+               sum(case when win > lose AND last30 then 1 else 0 end)          as wins30,
+               sum(case when win < lose AND last30 then 1 else 0 end)          as losses30,
+               MIN(x.player_rank)                                              as max_rank,
+               (SELECT player_rank FROM match ORDER BY timestamp DESC limit 1) as rank,
+               mt.type                                                         as match_type
         from (
                  select m.id,
                         m.match_type,
@@ -265,6 +200,7 @@ const getWinLoss = (callback: DatabaseCallback<WinLoss[]>) => {
                           join game g on m.id = g.match_id
                  group by m.id, m.match_type
              ) x
+                 join match_type mt on mt.id = x.match_type
         group by x.match_type;
     `,
         logger.withErrorHandling("getWinLoss", callback)

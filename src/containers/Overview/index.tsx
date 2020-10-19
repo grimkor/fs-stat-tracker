@@ -3,27 +3,12 @@ import {Divider, Typography} from "@material-ui/core";
 import OverviewStat from "../../components/OverviewStat";
 import {useIpcRequest} from "../../helpers/useIpcRequest";
 import {AppContext} from "../../context";
-
-interface Stats {
-  ranked: {
-    wins: number;
-    losses: number;
-    wins30: number;
-    losses30: number;
-    max_rank: number;
-    rank: number;
-  };
-  casual: {
-    wins: number;
-    losses: number;
-    wins30: number;
-    losses30: number;
-  };
-}
+import {OverviewStats} from "../../types";
 
 const Overview: FC = () => {
   const context = useContext(AppContext);
-  const {data} = useIpcRequest<Stats>("get_stats");
+  const {data} = useIpcRequest<OverviewStats>("get_stats");
+  console.log(data);
   return (
     <div
       style={{
@@ -49,9 +34,9 @@ const Overview: FC = () => {
           data?.ranked?.losses30 ?? " - "
         }`}
       />
-      <div style={{ gridColumn: "1/-1", padding: "0 16px" }}>
+      <div style={{gridColumn: "1/-1", padding: "0 16px"}}>
         <Typography variant="h5">Casual</Typography>
-        <Divider />
+        <Divider/>
       </div>
       <OverviewStat
         title="Win/Loss"
@@ -63,6 +48,22 @@ const Overview: FC = () => {
         title="Win/Loss (30 days)"
         value={`${data?.casual?.wins30 ?? " - "}:${
           data?.casual?.losses30 ?? " - "
+        }`}
+      />
+      <div style={{gridColumn: "1/-1", padding: "0 16px"}}>
+        <Typography variant="h5">Friendly</Typography>
+        <Divider/>
+      </div>
+      <OverviewStat
+        title="Win/Loss"
+        value={`${data?.challenge?.wins ?? " - "}:${
+          data?.challenge?.losses ?? " - "
+        }`}
+      />
+      <OverviewStat
+        title="Win/Loss (30 days)"
+        value={`${data?.challenge?.wins30 ?? " - "}:${
+          data?.challenge?.losses30 ?? " - "
         }`}
       />
     </div>
