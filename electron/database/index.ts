@@ -1,5 +1,16 @@
 import {Database} from "sqlite3";
-import {Config, DatabaseCallback, DatabaseInput, Game, Match, Player, SetPlayerInput, WinLoss,} from "../types";
+import {
+  CharacterOverview,
+  Config,
+  DatabaseCallback,
+  DatabaseInput,
+  Game,
+  Match,
+  Player,
+  SetPlayerInput,
+  WinLoss,
+  WinratePivot,
+} from "../types";
 import Logger from "../logger";
 
 const sqlite3 = require("sqlite3");
@@ -177,9 +188,8 @@ const insertGameResult = (
 
 const getWinLoss = (callback: DatabaseCallback<WinLoss[]>) => {
   getDatabase((db) => {
-    db.serialize(() => {
-      db.all(
-        `
+    db.all(
+      `
         select count(x.id)                                                     as total,
                sum(case when win > lose then 1 else 0 end)                     as wins,
                sum(case when win < lose then 1 else 0 end)                     as losses,
@@ -203,9 +213,57 @@ const getWinLoss = (callback: DatabaseCallback<WinLoss[]>) => {
                  join match_type mt on mt.id = x.match_type
         group by x.match_type;
     `,
-        logger.withErrorHandling("getWinLoss", callback)
-      );
-    });
+      logger.withErrorHandling("getWinLoss", callback)
+    );
+  });
+};
+
+const getWinratePivot = (
+  matchTypes: number[],
+  callback: DatabaseCallback<WinratePivot[]>
+) => {
+  getDatabase((db) =>
+    db.all(
+      `
+      select c.name                                                        as player,
+             c2.name                                                       as opponent,
+             sum(case when g.player_score > g.opp_score then 1 else 0 end) as wins,
+             sum(case when g.player_score < g.opp_score then 1 else 0 end) as losses
+      from character c
+               cross join character c2
+               left join (SELECT *
+                          from game g
+                                   join match m on g.match_id = m.id
+                          where match_type in (${matchTypes.join()})
+               ) g
+                         on g.player_character = c.id and g.opp_character = c2.id
+      group by c.name, c2.name;
+      `,
+      logger.withErrorHandling("getWinratePivot", callback)
+    )
+  );
+};
+
+const getCharacterOverview = (
+  matchTypes: number[],
+  callback: DatabaseCallback<CharacterOverview[]>
+) => {
+  getDatabase((db) => {
+    db.all(
+      `
+      select c.name,
+             sum(case when g.player_score > g.opp_score then 1 else 0 end) as wins,
+             sum(case when g.player_score < g.opp_score then 1 else 0 end) as losses
+      from character c
+               left outer join (select *
+                                from game
+                                         join match m on game.match_id = m.id
+                                where match_type in (${matchTypes.join()})
+      ) g on c.id = g.player_character
+      group by c.id
+    `,
+      logger.withErrorHandling("getCharacterOverview", callback)
+    );
   });
 };
 
@@ -217,4 +275,6 @@ export default {
   getWinLoss,
   insertGameResult,
   insertMatch,
+  getWinratePivot,
+  getCharacterOverview,
 };

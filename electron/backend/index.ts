@@ -134,6 +134,22 @@ class Backend {
         }
       });
     });
+
+    ipcMain.on("get_winrate_pivot", (event, args: number[]) => {
+      db.getWinratePivot(args, (data) => {
+        if (data) {
+          event.reply("get_winrate_pivot_reply", data);
+        }
+      });
+    });
+
+    ipcMain.on("get_character_overview", (event, args: number[]) => {
+      db.getCharacterOverview(args, (data) => {
+        if (data) {
+          event.reply("get_character_overview_reply", data);
+        }
+      });
+    });
   }
 
   route(action: string, message: string) {

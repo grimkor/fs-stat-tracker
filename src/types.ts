@@ -10,6 +10,8 @@ export interface Config {
 export interface Context {
   player: Player;
   config: Config;
+  filter: number[];
+  setFilter: (filters: number[]) => void;
 }
 
 export interface OverviewStats {
@@ -34,3 +36,11 @@ export interface OverviewStats {
     losses30: number;
   };
 }
+
+export const MatchTypesObj: { [key: string]: number } = {
+  Casual: 1,
+  Ranked: 2,
+  Friendly: 3,
+};
+
+export type MatchTypes = typeof MatchTypesObj;

@@ -1,16 +1,23 @@
-import React, { FC } from "react";
-import { ButtonGroup } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
+import React, {FC} from "react";
+import {GridJustification} from "@material-ui/core";
+import {makeStyles} from "@material-ui/core/styles";
+
+interface NavButtonGroup {
+  justify: GridJustification;
+}
 
 const useStyles = makeStyles(() => ({
   root: {
-    flexGrow: 1,
+    display: "flex",
+    flex: 1,
+    justifyContent: (props: NavButtonGroup) => props.justify,
+    alignItems: "center",
   },
 }));
 
-const NavButtonGroup: FC = ({ children }) => {
-  const { root } = useStyles();
-  return <ButtonGroup className={root}>{children}</ButtonGroup>;
+const NavButtonGroup: FC<NavButtonGroup> = (props) => {
+  const {root} = useStyles(props);
+  return <div className={root}>{props.children}</div>;
 };
 
 export default NavButtonGroup;

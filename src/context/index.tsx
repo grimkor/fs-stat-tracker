@@ -1,5 +1,5 @@
 import React, {createContext, Dispatch, FC, useEffect, useReducer,} from "react";
-import {Config, Context, Player} from "../types";
+import {Config, Context, MatchTypesObj, Player} from "../types";
 import reducer, {Actions, ActionTypes} from "./reducer";
 import {useIpcRequest} from "../helpers/useIpcRequest";
 
@@ -12,6 +12,9 @@ const defaultContext: Context = {
   },
   config: {
     logFile: "",
+  },
+  filter: Object.values(MatchTypesObj),
+  setFilter: () => {
   },
 };
 
@@ -46,5 +49,9 @@ export const AppProvider: FC = ({children}) => {
       return ipcRenderer.send("unsubscribe");
     };
   }, []);
-  return <Provider value={state}>{children}</Provider>;
+
+  const setFilter = (payload: number[]) =>
+    dispatch({type: Actions.set_filter, payload});
+
+  return <Provider value={{...state, setFilter}}>{children}</Provider>;
 };

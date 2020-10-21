@@ -15,6 +15,7 @@
     "outDir": "./dist",
     "strict": true,
     "esModuleInterop": true,
-    "downlevelIteration": true
+    "downlevelIteration": true,
+    "resolveJsonModule": true
   }
 }

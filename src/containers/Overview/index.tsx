@@ -5,13 +5,14 @@ import {useIpcRequest} from "../../helpers/useIpcRequest";
 import {AppContext} from "../../context";
 import {OverviewStats} from "../../types";
 
+//TODO: See about moving the divs with inline styles to components in src/components
 const Overview: FC = () => {
   const context = useContext(AppContext);
   const {data} = useIpcRequest<OverviewStats>("get_stats");
-  console.log(data);
   return (
     <div
       style={{
+        flex: 1,
         display: "grid",
         gridTemplateColumns: "1fr 1fr",
         marginTop: 16,
