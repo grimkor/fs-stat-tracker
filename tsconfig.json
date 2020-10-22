@@ -17,5 +17,8 @@
     "esModuleInterop": true,
     "downlevelIteration": true,
     "resolveJsonModule": true
+  },
+  "typeAcquisition": {
+    "enable": true
   }
 }

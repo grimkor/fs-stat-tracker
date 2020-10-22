@@ -1,6 +1,7 @@
 import React, {FC} from "react";
 import {Card, CardMedia, LinearProgress, Theme} from "@material-ui/core";
 import {makeStyles} from "@material-ui/core/styles";
+import * as Characters from "../../characters";
 
 interface CharacterCard {
   character: string;
@@ -20,7 +21,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   media: {
     height: 90,
     width: 90,
-    backgroundColor: "steelblue",
+    objectFit: "scale-down",
   },
   content: {
     flex: 1,
@@ -32,7 +33,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   barLabel: {
     display: "flex",
     justifyContent: "space-between",
-    marginBottom: theme.spacing(0.5)
+    marginBottom: theme.spacing(0.5),
   },
 }));
 
@@ -43,7 +44,12 @@ const CharacterCard: FC<CharacterCard> = ({character, wins, losses}) => {
   );
   return (
     <Card className={root}>
-      <CardMedia className={media}>{character}</CardMedia>
+      <CardMedia
+        component={"img"}
+        className={media}
+        // @ts-ignore
+        src={Characters?.[character.toLowerCase()]}
+      />
       <div className={content}>
         <span>Games played: {wins + losses}</span>
         <div>
