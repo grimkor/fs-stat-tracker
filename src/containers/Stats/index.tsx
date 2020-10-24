@@ -1,12 +1,12 @@
-import React, {FC, useContext} from "react";
+import React, { FC, useContext } from "react";
 import PivotGrid from "devextreme-react/pivot-grid";
 import PivotGridDataSource from "devextreme/ui/pivot_grid/data_source";
-import {useIpcRequest} from "../../helpers/useIpcRequest";
-import {WinratePivot} from "../../../electron/types";
-import {AppContext} from "../../context";
+import { useIpcRequest } from "../../helpers/useIpcRequest";
+import { WinratePivot } from "../../../electron/types";
+import { AppContext } from "../../context";
 
-const makeDataSource = (data: WinratePivot[]) =>
-  new PivotGridDataSource({
+const makeDataSource = (data: WinratePivot[]) => {
+  return new PivotGridDataSource({
     fields: [
       {
         dataField: "x",
@@ -35,7 +35,9 @@ const makeDataSource = (data: WinratePivot[]) =>
         summaryType: "avg",
         showGrandTotals: true,
         customizeText: (cellInfo) =>
-          cellInfo.value ? `${Number(cellInfo.value).toFixed(0)}%` : "-",
+          !isNaN(Number(cellInfo.value))
+            ? `${Number(cellInfo.value).toFixed(0)}%`
+            : "-",
       },
       {
         dataField: "wins",
@@ -64,13 +66,13 @@ const makeDataSource = (data: WinratePivot[]) =>
           : null,
     })),
   });
+};
 
 const Stats: FC = () => {
-  const {filter} = useContext(AppContext);
-  const {data} = useIpcRequest<WinratePivot[]>("get_winrate_pivot", filter);
-
+  const { filter } = useContext(AppContext);
+  const { data } = useIpcRequest<WinratePivot[]>("get_winrate_pivot", filter);
   return data ? (
-    <div style={{flex: 1, overflow: "auto"}}>
+    <div style={{ flex: 1, overflow: "auto" }}>
       <PivotGrid
         rowHeaderLayout="tree"
         dataSource={makeDataSource(data)}
@@ -78,9 +80,9 @@ const Stats: FC = () => {
         showBorders={true}
         showColumnTotals={false}
         showRowTotals={false}
-        texts={{grandTotal: "", total: "Player"}}
-        scrolling={{mode: "standard"}}
-        elementAttr={{id: "character-breakdown-pivot"}}
+        texts={{ grandTotal: "", total: "Player" }}
+        scrolling={{ mode: "standard" }}
+        elementAttr={{ id: "character-breakdown-pivot" }}
         onCellPrepared={(e) => {
           if (e.cellElement) {
             e.cellElement.style.textAlign = "center";

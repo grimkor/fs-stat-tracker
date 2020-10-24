@@ -1,4 +1,9 @@
-import {CasualMatchResult, GameResultMatch, RankedDataResult, RankedMatchResult,} from "../types";
+import {
+  CasualMatchResult,
+  GameResultMatch,
+  RankedDataResult,
+  RankedMatchResult,
+} from "../types";
 import Logger from "../logger";
 
 const logger = new Logger();
@@ -7,7 +12,7 @@ export const authenticated = (line: string) => {
   try {
     if (line.match(/\[\|authsucceeded:/i)) {
       logger.writeLine("match", "authenticated", line);
-      const match = line.match(/:\w*:/i);
+      const match = line.match(/(?<=authsucceeded:).*:/i);
       if (match) {
         return match[0].replace(/:/gi, "");
       }
@@ -63,7 +68,7 @@ export const casualMatchFound = (
       const properties = line.matchAll(/\w*:\w*/gi);
       return [...properties].reduce((acc, prop) => {
         const [key, value] = prop[0].split(":");
-        return key ? {...acc, [key]: value} : acc;
+        return key ? { ...acc, [key]: value } : acc;
       }, {} as CasualMatchResult);
     }
   } catch (e) {
@@ -82,7 +87,7 @@ export const challengeMatchFound = (
       const properties = split[1].matchAll(/\w*:\w*/gi);
       return [...properties].reduce((acc, prop) => {
         const [key, value] = prop[0].split(":");
-        return key ? {...acc, [key]: value} : acc;
+        return key ? { ...acc, [key]: value } : acc;
       }, {} as CasualMatchResult);
     }
   } catch (e) {
@@ -109,38 +114,35 @@ export const rankedMatchFound = (
     const match = line.match(/\[\|joinranked:/i);
     if (match) {
       logger.writeLine("match", "rankedMatchFound", line);
-      const properties = line.matchAll(/\w*:\w*/gi);
-      return [...properties].reduce((acc, prop) => {
+      const properties = line.matchAll(/\w*:.*?(?=[,\]])/gi);
+      let rankedMatchResult = [...properties].reduce((acc, prop) => {
         const [key, value] = prop[0].split(":");
-        return key ? {...acc, [key]: value} : acc;
+        return key ? { ...acc, [key]: value } : acc;
       }, {} as RankedMatchResult);
+      logger.writeLine(
+        "match",
+        "rankedMatchFound",
+        JSON.stringify(rankedMatchResult)
+      );
+      return rankedMatchResult;
     }
   } catch (e) {
     logger.writeError("rankedMatchFound matcher", e);
   }
 };
 
-// const rankedMatchResult = (line: string) => {
-//   if (line.match(/end prepareteambattlescreen/i)) {
-//     logger.writeLine("match", "", line);
-//     const scores = line.match(/winnerChars P1 \[(.*?)\] P2 \[(.*?)\]/i);
-//     if (scores?.some((x) => x.split(",").length === 3)) {
-//       return [...scores].reduce(
-//         (acc, player, index) =>
-//           index
-//             ? {
-//                 winner: player.split(",").length === 3 ? index : acc.winner,
-//                 loserScore:
-//                   player.split(",").length === 3
-//                     ? acc.score
-//                     : player.split(",").length,
-//               }
-//             : acc,
-//         { score: 0, winner: 0 }
-//       );
-//     }
-//   }
-// };
+export const rankedBotMatchFound = (line: string): boolean | undefined => {
+  try {
+    const match = line.match(/\[\|joinrankedbot:/i);
+    if (match) {
+      logger.writeLine("match", "rankedBotMatchFound", line);
+      return true;
+    }
+    return false;
+  } catch (e) {
+    logger.writeError("rankedMatchFound matcher", e);
+  }
+};
 
 export const rankedData = (line: string): RankedDataResult | undefined => {
   try {

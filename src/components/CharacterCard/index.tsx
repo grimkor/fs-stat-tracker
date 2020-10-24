@@ -1,7 +1,8 @@
-import React, {FC} from "react";
-import {Card, CardMedia, LinearProgress, Theme} from "@material-ui/core";
-import {makeStyles} from "@material-ui/core/styles";
+import React, { FC } from "react";
+import { Card, CardMedia, LinearProgress, Theme } from "@material-ui/core";
+import { makeStyles } from "@material-ui/core/styles";
 import * as Characters from "../../characters";
+import { useHistory } from "react-router-dom";
 
 interface CharacterCard {
   character: string;
@@ -15,12 +16,14 @@ const useStyles = makeStyles((theme: Theme) => ({
     justifyContent: "space-between",
     flex: 1,
     minWidth: 300,
-    height: 90,
+    height: 152,
     margin: theme.spacing(1),
+    cursor: "pointer",
   },
   media: {
-    height: 90,
+    // height: 90,
     width: 90,
+    margin: theme.spacing(1),
     objectFit: "scale-down",
   },
   content: {
@@ -37,13 +40,18 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
-const CharacterCard: FC<CharacterCard> = ({character, wins, losses}) => {
-  const {barLabel, content, media, root} = useStyles();
+const CharacterCard: FC<CharacterCard> = ({ character, wins, losses }) => {
+  const history = useHistory();
+  const { barLabel, content, media, root } = useStyles();
   const winrate = (wins || losses ? (wins / (wins + losses)) * 100 : 0).toFixed(
     0
   );
   return (
-    <Card className={root}>
+    <Card
+      className={root}
+      elevation={3}
+      onClick={() => history.push(`/character/${character}`)}
+    >
       <CardMedia
         component={"img"}
         className={media}

@@ -1,4 +1,4 @@
-import {Database} from "sqlite3";
+import { Database } from "sqlite3";
 import {
   CharacterOverview,
   Config,
@@ -311,6 +311,35 @@ const getCharacterOverview = (
   });
 };
 
+const getGameResults = (
+  args: { filter: number[]; character: string },
+  callback: DatabaseCallback<CharacterOverview[]>
+) => {
+  getDatabase((db) => {
+    try {
+      db.all(
+        `
+        select c.name as player, c2.name as opponent,
+        (case when g.player_score > g.opp_score then 1 else 0 end) as win,
+        m.*,
+        g.player_score,
+        g.opp_score
+        
+        from game g
+        join match m on g.match_id = m.id
+        join character c on g.player_character = c.id
+        join character c2 on g.opp_character = c2.id
+        where c.name = '${args.character}'
+        and m.match_type in (${args.filter.join()})
+        ;`,
+        logger.withErrorHandling("getGameResults", callback)
+      );
+    } catch (e) {
+      logger.writeError("getGameResults", e);
+    }
+  });
+};
+
 export default {
   getConfig,
   setConfig,
@@ -321,4 +350,5 @@ export default {
   insertMatch,
   getWinratePivot,
   getCharacterOverview,
+  getGameResults,
 };

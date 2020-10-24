@@ -1,8 +1,13 @@
 import React from "react";
-import {AppProvider} from "./context";
-import {colors, createMuiTheme, Theme, ThemeProvider,} from "@material-ui/core";
+import { AppProvider } from "./context";
+import {
+  colors,
+  createMuiTheme,
+  Theme,
+  ThemeProvider,
+} from "@material-ui/core";
 import NavBar from "./containers/NavBar";
-import {BrowserRouter as Router, Route, Switch} from "react-router-dom";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import Overview from "./containers/Overview";
 import History from "./containers/History";
 import Settings from "./containers/Settings";
@@ -11,6 +16,7 @@ import Stats from "./containers/Stats";
 import "devextreme/dist/css/dx.common.css";
 import "devextreme/dist/css/dx.light.css";
 import Characters from "./containers/Characters";
+import CharacterDetails from "./containers/CharacterDetails";
 
 const theme: Theme = createMuiTheme({
   palette: {
@@ -22,9 +28,9 @@ const theme: Theme = createMuiTheme({
 
 export default function App() {
   return (
-    <AppProvider>
-      <ThemeProvider theme={theme}>
-        <Router>
+    <Router>
+      <AppProvider>
+        <ThemeProvider theme={theme}>
           <div
             //TODO: Change to component in src/components
             style={{
@@ -35,32 +41,35 @@ export default function App() {
               flexDirection: "column",
             }}
           >
-            <NavBar/>
+            <NavBar />
             <Container>
               <Switch>
-                <Route path="/overview">
-                  <Overview/>
+                <Route exact path="/overview">
+                  <Overview />
                 </Route>
-                <Route path="/characters">
-                  <Characters/>
+                <Route exact path="/character/:character">
+                  <CharacterDetails />
                 </Route>
-                <Route path="/stats">
-                  <Stats/>
+                <Route exact path="/characters">
+                  <Characters />
                 </Route>
-                <Route path="/history">
-                  <History/>
+                <Route exact path="/stats">
+                  <Stats />
                 </Route>
-                <Route path="/settings">
-                  <Settings/>
+                <Route exact path="/history">
+                  <History />
                 </Route>
-                <Route path="/">
-                  <Overview/>
+                <Route exact path="/settings">
+                  <Settings />
+                </Route>
+                <Route exact path="/">
+                  <Overview />
                 </Route>
               </Switch>
             </Container>
           </div>
-        </Router>
-      </ThemeProvider>
-    </AppProvider>
+        </ThemeProvider>
+      </AppProvider>
+    </Router>
   );
 }

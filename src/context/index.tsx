@@ -1,9 +1,15 @@
-import React, {createContext, Dispatch, FC, useEffect, useReducer,} from "react";
-import {Config, Context, MatchTypesObj, Player} from "../types";
-import reducer, {Actions, ActionTypes} from "./reducer";
-import {useIpcRequest} from "../helpers/useIpcRequest";
+import React, {
+  createContext,
+  Dispatch,
+  FC, useCallback,
+  useEffect,
+  useReducer,
+} from "react";
+import { Config, Context, MatchTypesObj, Player } from "../types";
+import reducer, { Actions, ActionTypes } from "./reducer";
+import { useIpcRequest } from "../helpers/useIpcRequest";
 
-const {ipcRenderer} = window.require("electron");
+const { ipcRenderer } = window.require("electron");
 
 const defaultContext: Context = {
   player: {
@@ -14,29 +20,28 @@ const defaultContext: Context = {
     logFile: "",
   },
   filter: Object.values(MatchTypesObj),
-  setFilter: () => {
-  },
+  setFilter: () => {},
 };
 
 export const AppContext = createContext<Context>(defaultContext);
 
-const {Provider} = AppContext;
+const { Provider } = AppContext;
 
 function useIpcDispatchRequest<T>(
   endpoint: string,
   action: Actions,
   dispatch: Dispatch<ActionTypes>
 ) {
-  const {data} = useIpcRequest<T>(endpoint);
+  const { data } = useIpcRequest<T>(endpoint);
   useEffect(() => {
     if (data) {
       // @ts-ignore
-      dispatch({type: action, payload: data});
+      dispatch({ type: action, payload: data });
     }
   }, [data, dispatch]);
 }
 
-export const AppProvider: FC = ({children}) => {
+export const AppProvider: FC = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, defaultContext);
 
   useIpcDispatchRequest<Player>("get_player", Actions.set_player, dispatch);
@@ -51,7 +56,9 @@ export const AppProvider: FC = ({children}) => {
   }, []);
 
   const setFilter = (payload: number[]) =>
-    dispatch({type: Actions.set_filter, payload});
+    dispatch({ type: Actions.set_filter, payload });
+
+
 
   return <Provider value={{...state, setFilter}}>{children}</Provider>;
 };

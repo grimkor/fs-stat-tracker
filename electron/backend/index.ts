@@ -1,6 +1,6 @@
 import fs from "fs";
-import {ChildProcess, fork} from "child_process";
-import {ipcMain, IpcMainEvent} from "electron";
+import { ChildProcess, fork } from "child_process";
+import { ipcMain, IpcMainEvent } from "electron";
 import db from "../database";
 import path from "path";
 import Logger from "../logger";
@@ -22,7 +22,7 @@ class Backend {
       db.getConfig((data) => {
         if (data) {
           const config = data.reduce(
-            (obj, row) => ({...obj, [row.setting]: row.value}),
+            (obj, row) => ({ ...obj, [row.setting]: row.value }),
             {} as { [key: string]: string }
           );
           if (fs.existsSync(config.logFile)) {
@@ -95,7 +95,7 @@ class Backend {
       db.getConfig((data) => {
         if (data) {
           const config = data.reduce((obj, row) => {
-            return {...obj, [row.setting]: row.value};
+            return { ...obj, [row.setting]: row.value };
           }, {});
           event.reply("get_config_reply", config);
         }
@@ -113,7 +113,7 @@ class Backend {
       db.getPlayer((data) => {
         if (data) {
           const player = data.reduce((obj, row) => {
-            return {...obj, [row.property]: row.value};
+            return { ...obj, [row.property]: row.value };
           }, {});
           event.reply("get_player_reply", player);
         }
@@ -126,7 +126,7 @@ class Backend {
           const replyObj = data.reduce(
             (obj, row) => ({
               ...obj,
-              [row.match_type]: {...row},
+              [row.match_type]: { ...row },
             }),
             {}
           );
@@ -147,6 +147,14 @@ class Backend {
       db.getCharacterOverview(args, (data) => {
         if (data) {
           event.reply("get_character_overview_reply", data);
+        }
+      });
+    });
+
+    ipcMain.on("get_game_results", (event, args) => {
+      db.getGameResults(args, (data) => {
+        if (data) {
+          event.reply("get_game_results_reply", data);
         }
       });
     });

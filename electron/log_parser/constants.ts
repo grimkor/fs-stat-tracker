@@ -12,4 +12,5 @@ export const MatchType = {
   ranked: "ranked",
   casual: "casual",
   challenge: "challenge",
+  bot_ranked: "bot_ranked",
 };
