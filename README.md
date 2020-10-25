@@ -45,7 +45,7 @@ You will need to install and use yarn for the following steps. Details on how to
 Once running a database file will be created in
 
 **Windows**: _%USERPROFILE%/fs-stat-tracker.db_
-
+\
 **Linux**: _/home/user/fs-stat-tracker.db_
 
 After running go to config and point to the log file. This is typically found in `%USERPROFILE%/AppData/LocalLow/Sirlin Games/Fantasy Strike/output_log.txt`. Make sure to hit save.
@@ -58,16 +58,8 @@ After running go to config and point to the log file. This is typically found in
 
 Output should be in _<project_root>/packages_
 
-### TODO
+## Issues & Bugs
 
-- ~~add player table to separzate config from player data~~
-  - ~~Track rank from logs~~
-  - ~~Move the following to the player table:~~
-    - ~~rank~~
-    - ~~max rank~~
-    - ~~player name~~
-- ~~Move Electron to TypeScript~~
-- crash logs
-- tests
-- match history tab
-- see if we can restart the logger process if it exits unexpectedly
+If you run into any issues or bugs with the FS Stat Tracker then I urge you to raise an [issue](https://github.com/grimkor/fs-stat-tracker/issues/new) on this GitHub project and attach the output logs found at _%USERPROFILE%/fs-stat-tracker.log_. Please note this file resets every time the FS Stat Tracker is ran, so for the logs to be pertinent they must be from the last time the issue/bug occurred without re-running the application.
+
+Alternatively I am on the Fantasy Strike Discord as @Grimbakor.
