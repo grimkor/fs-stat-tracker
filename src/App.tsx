@@ -1,13 +1,8 @@
 import React from "react";
-import { AppProvider } from "./context";
-import {
-  colors,
-  createMuiTheme,
-  Theme,
-  ThemeProvider,
-} from "@material-ui/core";
+import {AppProvider} from "./context";
+import {colors, createMuiTheme, Theme, ThemeProvider,} from "@material-ui/core";
 import NavBar from "./containers/NavBar";
-import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import {HashRouter as Router, Route, Switch} from "react-router-dom";
 import Overview from "./containers/Overview";
 import History from "./containers/History";
 import Settings from "./containers/Settings";
@@ -60,10 +55,10 @@ export default function App() {
                   <History />
                 </Route>
                 <Route exact path="/settings">
-                  <Settings />
+                  <Settings/>
                 </Route>
-                <Route exact path="/">
-                  <Overview />
+                <Route path="/">
+                  <Overview/>
                 </Route>
               </Switch>
             </Container>
