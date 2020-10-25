@@ -70,7 +70,9 @@ const makeDataSource = (data: WinratePivot[]) => {
 
 const Stats: FC = () => {
   const { filter } = useContext(AppContext);
-  const { data } = useIpcRequest<WinratePivot[]>("get_winrate_pivot", filter);
+  const { data } = useIpcRequest<WinratePivot[]>("get_winrate_pivot", {
+    args: filter,
+  });
   return data ? (
     <div style={{ flex: 1, overflow: "auto" }}>
       <PivotGrid

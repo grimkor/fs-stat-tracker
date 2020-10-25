@@ -283,24 +283,25 @@ const getWinratePivot = (
 };
 
 const getCharacterOverview = (
-  matchTypes: number[],
+  args: { character?: string; filter: number[] },
   callback: DatabaseCallback<CharacterOverview[]>
 ) => {
   getDatabase((db) => {
     try {
-      if (matchTypes) {
+      if (args) {
         db.all(
           `
-      select c.name,
-             sum(case when g.player_score > g.opp_score then 1 else 0 end) as wins,
-             sum(case when g.player_score < g.opp_score then 1 else 0 end) as losses
-      from character c
-               left outer join (select *
-                                from game
-                                         join match m on game.match_id = m.id
-                                where match_type in (${matchTypes.join()})
-      ) g on c.id = g.player_character
-      group by c.id
+        select c.name,
+               sum(case when g.player_score > g.opp_score then 1 else 0 end) as wins,
+               sum(case when g.player_score < g.opp_score then 1 else 0 end) as losses
+        from character c
+                 left outer join (select *
+                                  from game
+                                           join match m on game.match_id = m.id
+                                  where match_type in (${args.filter.join()})
+        ) g on c.id = g.player_character
+        ${args.character ? `where c.name = '${args.character}'` : ""}
+        group by c.id
     `,
           logger.withErrorHandling("getCharacterOverview", callback)
         );
@@ -312,7 +313,7 @@ const getCharacterOverview = (
 };
 
 const getGameResults = (
-  args: { filter: number[]; character: string },
+  args: { filter: number[]; character?: string; limit?: number },
   callback: DatabaseCallback<CharacterOverview[]>
 ) => {
   getDatabase((db) => {
@@ -329,8 +330,11 @@ const getGameResults = (
         join match m on g.match_id = m.id
         join character c on g.player_character = c.id
         join character c2 on g.opp_character = c2.id
-        where c.name = '${args.character}'
-        and m.match_type in (${args.filter.join()})
+        
+        where m.match_type in (${args.filter.join()})
+        ${args.character ? `and c.name = '${args.character}'` : ""}
+        ${args.limit ? `limit ${args.limit}` : ""}
+        
         ;`,
         logger.withErrorHandling("getGameResults", callback)
       );

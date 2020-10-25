@@ -23,7 +23,7 @@ const Settings: FC = () => {
   };
 
   return (
-    <div>
+    <div style={{ flex: 1 }}>
       <FileSelectInput value={logFile} setValue={handleChange} />
       <Button color="primary" variant="contained" onClick={submit}>
         Save Changes

@@ -143,13 +143,16 @@ class Backend {
       });
     });
 
-    ipcMain.on("get_character_overview", (event, args: number[]) => {
-      db.getCharacterOverview(args, (data) => {
-        if (data) {
-          event.reply("get_character_overview_reply", data);
-        }
-      });
-    });
+    ipcMain.on(
+      "get_character_overview",
+      (event, args: { character: string; filter: number[] }) => {
+        db.getCharacterOverview(args, (data) => {
+          if (data) {
+            event.reply("get_character_overview_reply", data[0]);
+          }
+        });
+      }
+    );
 
     ipcMain.on("get_game_results", (event, args) => {
       db.getGameResults(args, (data) => {

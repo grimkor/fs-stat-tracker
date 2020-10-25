@@ -19,7 +19,7 @@ const Overview: FC = () => {
         marginTop: 16,
       }}
     >
-      <div style={{ gridColumn: "1/-1" }}>
+      <div style={{ gridColumn: "1/-1", padding: "0 16px"  }}>
         <Typography variant="h5">Ranked</Typography>
         <Divider />
       </div>

@@ -2,8 +2,10 @@ import React, { FC, useContext, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { useIpcRequest } from "../../helpers/useIpcRequest";
 import { AppContext } from "../../context";
-import { Avatar, List, ListItem, Typography } from "@material-ui/core";
-import * as Characters from "../../characters";
+import CharacterHistoryList from "../../components/CharacterHistoryList";
+import * as Characters from "../../characters/portraits";
+import { CharacterOverview } from "../../../electron/types";
+import OverviewStat from "../../components/OverviewStat";
 
 const CharacterDetails: FC = () => {
   const {
@@ -11,86 +13,57 @@ const CharacterDetails: FC = () => {
     player: { name },
   } = useContext(AppContext);
   const { character } = useParams();
-  const values = useMemo(() => ({ filter, character }), [filter, character]);
-  console.log("values", values);
-  const { data } = useIpcRequest<any[]>("get_game_results", values);
+  const values = useMemo(() => ({ filter, character, limit: 20 }), [
+    filter,
+    character,
+  ]);
+  const { data: overview } = useIpcRequest<CharacterOverview>(
+    "get_character_overview",
+    {
+      args: values,
+      defaultValue: {
+        name: character,
+        wins: 0,
+        losses: 0,
+      },
+    }
+  );
+  const { data } = useIpcRequest<any[]>("get_game_results", { args: values });
+  const { wins, losses } = overview;
+  const winrate =
+    !wins && !losses ? 0 : ((wins / (wins + losses)) * 100).toFixed(0);
+
   return (
-    <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
-      <div style={{ flex: 1 }} />
-      <div style={{ flex: 2, display: "flex", overflow: "auto" }}>
-        {data ? (
-          <List
-            component="div"
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              flex: 1,
-            }}
-          >
-            {data
-              .sort((a, b) => (a.id < b.id ? 1 : -1))
-              .map((game) => (
-                <ListItem
-                  key={`${game.id}-${game.match_id}`}
-                  style={{ border: "1px dotted black", display: "flex" }}
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "flex-end",
-                      flex: 1,
-                    }}
-                  >
-                    <div
-                      style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "flex-end",
-                        flex: 1,
-                      }}
-                    >
-                      <Avatar src={Characters?.[game.player.toLowerCase()]} />
-                      <Typography>{name}</Typography>
-                    </div>
-                  </div>
-                  <div
-                    style={{
-                      flex: 1,
-                      justifyContent: "center",
-                      display: "flex",
-                    }}
-                  >
-                    <span>{game.player_score}</span>
-                    <span>vs</span>
-                    <span>{game.opp_score}</span>
-                  </div>
-                  <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "flex-start",
-                      flex: 1,
-                    }}
-                  >
-                    <div
-                      style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "flex-start",
-                        flex: 1,
-                      }}
-                    >
-                      <Avatar src={Characters?.[game.opponent.toLowerCase()]} />
-                      <Typography>{game.opp_name}</Typography>
-                    </div>
-                  </div>
-                </ListItem>
-              ))}
-          </List>
-        ) : null}
+    <div
+      style={{
+        flex: 1,
+        display: "grid",
+        overflow: "hidden",
+        gridTemplateColumns: "1fr 2fr 1fr",
+        marginTop: 16,
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          overflow: "hidden",
+        }}
+      >
+        <div style={{ display: "flex", height: 200 }}>
+          <img
+            // @ts-ignore
+            src={Characters?.[character.toLowerCase()]}
+            alt={character}
+            style={{ objectFit: "scale-down", overflow: "hidden" }}
+          />
+        </div>
+        <OverviewStat title="Games Played" value={wins + losses} />
+        <OverviewStat title="Won" value={wins} />
+        <OverviewStat title="Winrate" value={`${winrate}%`} />
       </div>
-      <div style={{ flex: 1 }} />
+      {data ? <CharacterHistoryList name={name} data={data} /> : null}
+      <div style={{ display: "flex" }} />
     </div>
   );
 };

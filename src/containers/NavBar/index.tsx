@@ -19,12 +19,7 @@ const NavBar: FC = () => {
           <NavButton label="Settings" route="/settings"/>
         </NavButtonGroup>
         <NavButtonGroup justify="flex-end">
-          <div style={{flex: 1}}>
             <FilterSelect/>
-          </div>
-          <Typography variant="h6">
-            <span>{context.player.name}</span>
-          </Typography>
         </NavButtonGroup>
       </Toolbar>
     </AppBar>

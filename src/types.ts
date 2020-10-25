@@ -44,3 +44,18 @@ export const MatchTypesObj: { [key: string]: number } = {
 };
 
 export type MatchTypes = typeof MatchTypesObj;
+
+export const CharactersList = [
+  "Argagarg",
+  "DeGrey",
+  "Geiger",
+  "Grave",
+  "Jaina",
+  "Lum",
+  "Midori",
+  "Onimaru",
+  "Quince",
+  "Rook",
+  "Setsuki",
+  "Valerie",
+]

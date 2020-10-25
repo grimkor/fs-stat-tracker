@@ -4,9 +4,30 @@ const { ipcRenderer } = window.require("electron");
 
 export function useIpcRequest<T>(
   endpoint: string,
-  args?: any
+  options?: {
+    args?: any;
+    defaultValue: T;
+  }
+): { data: T };
+
+export function useIpcRequest<T>(
+  endpoint: string,
+  options?: {
+    args: any;
+    defaultValue?: T;
+  }
+): { data: T };
+
+export function useIpcRequest<T>(
+  endpoint: string,
+  options?: {
+    args?: any;
+    defaultValue?: T;
+  }
 ): { data: T | null } {
-  const [data, setData] = useState<T | null>(null);
+  const [data, setData] = useState<T | null>(
+    options?.defaultValue !== undefined ? options.defaultValue : null
+  );
   const listenerFunc = useCallback(
     function listenerFunction(event: unknown, payload: T) {
       setData(payload);
@@ -15,7 +36,7 @@ export function useIpcRequest<T>(
   );
   const updateListener = useCallback(
     function updateMessage() {
-      ipcRenderer.send(endpoint, args);
+      ipcRenderer.send(endpoint, options?.args);
     },
     [endpoint]
   );
@@ -23,13 +44,13 @@ export function useIpcRequest<T>(
   useEffect(() => {
     ipcRenderer.on("update", updateListener);
     ipcRenderer.on(`${endpoint}_reply`, listenerFunc);
-    ipcRenderer.send(endpoint, args);
+    ipcRenderer.send(endpoint, options?.args);
 
     return () => {
       ipcRenderer.removeListener(`${endpoint}_reply`, listenerFunc);
       ipcRenderer.removeListener("update", updateListener);
     };
-  }, [endpoint, args]);
+  }, [endpoint, options?.args]);
 
   return { data };
 }
