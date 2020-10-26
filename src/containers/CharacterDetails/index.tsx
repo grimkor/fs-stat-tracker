@@ -6,6 +6,7 @@ import CharacterHistoryList from "../../components/CharacterHistoryList";
 import * as Characters from "../../characters/portraits";
 import { CharacterOverview } from "../../../electron/types";
 import OverviewStat from "../../components/OverviewStat";
+import { IpcActions } from "../../../constants";
 
 const CharacterDetails: FC = () => {
   const {
@@ -18,7 +19,7 @@ const CharacterDetails: FC = () => {
     character,
   ]);
   const { data: overview } = useIpcRequest<CharacterOverview>(
-    "get_character_overview",
+    IpcActions.get_character_overview,
     {
       args: values,
       defaultValue: {
@@ -28,7 +29,9 @@ const CharacterDetails: FC = () => {
       },
     }
   );
-  const { data } = useIpcRequest<any[]>("get_game_results", { args: values });
+  const { data } = useIpcRequest<any[]>(IpcActions.get_game_results, {
+    args: values,
+  });
   const { wins, losses } = overview;
   const winrate =
     !wins && !losses ? 0 : ((wins / (wins + losses)) * 100).toFixed(0);

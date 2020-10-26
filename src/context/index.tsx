@@ -1,14 +1,15 @@
 import React, {
   createContext,
   Dispatch,
-  FC, useCallback,
+  FC,
+  useCallback,
   useEffect,
   useReducer,
 } from "react";
 import { Config, Context, MatchTypesObj, Player } from "../types";
 import reducer, { Actions, ActionTypes } from "./reducer";
 import { useIpcRequest } from "../helpers/useIpcRequest";
-
+import { IpcActions } from "../../constants";
 const { ipcRenderer } = window.require("electron");
 
 const defaultContext: Context = {
@@ -44,21 +45,27 @@ function useIpcDispatchRequest<T>(
 export const AppProvider: FC = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, defaultContext);
 
-  useIpcDispatchRequest<Player>("get_player", Actions.set_player, dispatch);
-  useIpcDispatchRequest<Config>("get_config", Actions.set_config, dispatch);
+  useIpcDispatchRequest<Player>(
+    IpcActions.get_player,
+    Actions.set_player,
+    dispatch
+  );
+  useIpcDispatchRequest<Config>(
+    IpcActions.get_config,
+    Actions.set_config,
+    dispatch
+  );
 
   useEffect(() => {
-    ipcRenderer.send("subscribe");
+    ipcRenderer.send(IpcActions.subscribe);
     return () => {
-      ipcRenderer.removeListener("update");
-      return ipcRenderer.send("unsubscribe");
+      ipcRenderer.removeListener(IpcActions.update);
+      return ipcRenderer.send(IpcActions.unsubscribe);
     };
   }, []);
 
   const setFilter = (payload: number[]) =>
     dispatch({ type: Actions.set_filter, payload });
 
-
-
-  return <Provider value={{...state, setFilter}}>{children}</Provider>;
+  return <Provider value={{ ...state, setFilter }}>{children}</Provider>;
 };

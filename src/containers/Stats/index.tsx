@@ -4,6 +4,7 @@ import PivotGridDataSource from "devextreme/ui/pivot_grid/data_source";
 import { useIpcRequest } from "../../helpers/useIpcRequest";
 import { WinratePivot } from "../../../electron/types";
 import { AppContext } from "../../context";
+import { IpcActions } from "../../../constants";
 
 const makeDataSource = (data: WinratePivot[]) => {
   return new PivotGridDataSource({
@@ -70,7 +71,7 @@ const makeDataSource = (data: WinratePivot[]) => {
 
 const Stats: FC = () => {
   const { filter } = useContext(AppContext);
-  const { data } = useIpcRequest<WinratePivot[]>("get_winrate_pivot", {
+  const { data } = useIpcRequest<WinratePivot[]>(IpcActions.get_winrate_pivot, {
     args: filter,
   });
   return data ? (

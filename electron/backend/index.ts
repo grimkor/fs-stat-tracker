@@ -4,6 +4,7 @@ import { ipcMain, IpcMainEvent } from "electron";
 import db from "../database";
 import path from "path";
 import Logger from "../logger";
+import { IpcActions } from "../../constants";
 
 class Backend {
   process: ChildProcess | null;
@@ -82,45 +83,45 @@ class Backend {
 
   run() {
     this.startLogParser();
-    ipcMain.on("subscribe", (event) => {
+    ipcMain.on(IpcActions.subscribe, (event) => {
       this.addSubscription(event.frameId, event);
       event.reply("status", "Connected");
     });
 
-    ipcMain.on("unsubscribe", (event) => {
+    ipcMain.on(IpcActions.unsubscribe, (event) => {
       this.removeSubscription(event.frameId);
     });
 
-    ipcMain.on("get_config", (event) => {
+    ipcMain.on(IpcActions.get_config, (event) => {
       db.getConfig((data) => {
         if (data) {
           const config = data.reduce((obj, row) => {
             return { ...obj, [row.setting]: row.value };
           }, {});
-          event.reply("get_config_reply", config);
+          event.reply(`${IpcActions.get_config}_reply`, config);
         }
       });
     });
 
-    ipcMain.on("set_config", (event, args) => {
+    ipcMain.on(IpcActions.set_config, (event, args) => {
       db.setConfig(args, () => {
         this.startLogParser();
-        this.route("update", "");
+        this.route(IpcActions.update, "");
       });
     });
 
-    ipcMain.on("get_player", (event) => {
+    ipcMain.on(IpcActions.get_player, (event) => {
       db.getPlayer((data) => {
         if (data) {
           const player = data.reduce((obj, row) => {
             return { ...obj, [row.property]: row.value };
           }, {});
-          event.reply("get_player_reply", player);
+          event.reply(`${IpcActions.get_player}_reply`, player);
         }
       });
     });
 
-    ipcMain.on("get_stats", (event) => {
+    ipcMain.on(IpcActions.get_stats, (event) => {
       db.getWinLoss((data) => {
         if (data) {
           const replyObj = data.reduce(
@@ -130,34 +131,34 @@ class Backend {
             }),
             {}
           );
-          event.reply("get_stats_reply", replyObj);
+          event.reply(`${IpcActions.get_stats}_reply`, replyObj);
         }
       });
     });
 
-    ipcMain.on("get_winrate_pivot", (event, args: number[]) => {
+    ipcMain.on(IpcActions.get_winrate_pivot, (event, args: number[]) => {
       db.getWinratePivot(args, (data) => {
         if (data) {
-          event.reply("get_winrate_pivot_reply", data);
+          event.reply(`${IpcActions.get_winrate_pivot}_reply`, data);
         }
       });
     });
 
     ipcMain.on(
-      "get_character_overview",
+      IpcActions.get_character_overview,
       (event, args: { character: string; filter: number[] }) => {
         db.getCharacterOverview(args, (data) => {
           if (data) {
-            event.reply("get_character_overview_reply", data[0]);
+            event.reply(`${IpcActions.get_character_overview}_reply`, data[0]);
           }
         });
       }
     );
 
-    ipcMain.on("get_game_results", (event, args) => {
+    ipcMain.on(IpcActions.get_game_results, (event, args) => {
       db.getGameResults(args, (data) => {
         if (data) {
-          event.reply("get_game_results_reply", data);
+          event.reply(`${IpcActions.get_game_results}_reply`, data);
         }
       });
     });

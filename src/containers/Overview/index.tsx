@@ -4,11 +4,12 @@ import OverviewStat from "../../components/OverviewStat";
 import { useIpcRequest } from "../../helpers/useIpcRequest";
 import { AppContext } from "../../context";
 import { OverviewStats } from "../../types";
+import { IpcActions } from "../../../constants";
 
 //TODO: See about moving the divs with inline styles to components in src/components
 const Overview: FC = () => {
   const context = useContext(AppContext);
-  const { data } = useIpcRequest<OverviewStats>("get_stats");
+  const { data } = useIpcRequest<OverviewStats>(IpcActions.get_stats);
 
   return (
     <div
@@ -19,7 +20,7 @@ const Overview: FC = () => {
         marginTop: 16,
       }}
     >
-      <div style={{ gridColumn: "1/-1", padding: "0 16px"  }}>
+      <div style={{ gridColumn: "1/-1", padding: "0 16px" }}>
         <Typography variant="h5">Ranked</Typography>
         <Divider />
       </div>

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { IpcActions } from "../../constants";
 
 const { ipcRenderer } = window.require("electron");
 
@@ -42,13 +43,13 @@ export function useIpcRequest<T>(
   );
 
   useEffect(() => {
-    ipcRenderer.on("update", updateListener);
+    ipcRenderer.on(IpcActions.update, updateListener);
     ipcRenderer.on(`${endpoint}_reply`, listenerFunc);
     ipcRenderer.send(endpoint, options?.args);
 
     return () => {
       ipcRenderer.removeListener(`${endpoint}_reply`, listenerFunc);
-      ipcRenderer.removeListener("update", updateListener);
+      ipcRenderer.removeListener(IpcActions.update, updateListener);
     };
   }, [endpoint, options?.args]);
 

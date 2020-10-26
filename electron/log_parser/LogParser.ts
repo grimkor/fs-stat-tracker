@@ -13,8 +13,8 @@ import db from "../database";
 import { CasualMatchResult, RankedMatchResult } from "../types";
 import Logger from "../logger";
 
-const { MatchType } = require("./constants");
-const { Actions } = require("./constants");
+const { MatchType } = require("../../constants");
+const { IpcActions } = require("../../constants");
 
 class LogParser {
   process: ChildProcess;
@@ -90,7 +90,7 @@ class LogParser {
           this.player.name = playerName;
           db.setPlayer({ name: this.player.name });
         }
-        this.process.send([Actions.update, this.player.name]);
+        this.process.send([IpcActions.update, this.player.name]);
       }
       const casualMatch = casualMatchFound(line);
       const challengeMatch = challengeMatchFound(line);
@@ -138,7 +138,7 @@ class LogParser {
             },
             () => {
               this.process.send([
-                Actions.update,
+                IpcActions.update,
                 {
                   id: this.matchId,
                   player_character: player.character,
@@ -179,7 +179,7 @@ class LogParser {
                   },
                   () => {
                     this.process.send([
-                      Actions.update,
+                      IpcActions.update,
                       {
                         id: this.matchId,
                         player_character: player.character,
@@ -198,7 +198,7 @@ class LogParser {
       const rank = rankedData(line);
       if (rank) {
         db.setPlayer(rank);
-        this.process.send([Actions.update, rank]);
+        this.process.send([IpcActions.update, rank]);
       }
     } catch (e) {
       this.logger.writeError("LogParser", e);

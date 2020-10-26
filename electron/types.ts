@@ -94,3 +94,4 @@ export interface RankedDataResult {
   league: string;
   rank: string;
 }
+
