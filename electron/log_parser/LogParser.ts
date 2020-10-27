@@ -4,6 +4,8 @@ import {
   authenticated,
   casualMatchFound,
   challengeMatchFound,
+  friendTeamBattle,
+  friendVersus,
   gameResult,
   rankedBotMatchFound,
   rankedData,
@@ -37,12 +39,14 @@ class LogParser {
   // @ts-ignore
   matchId: string | null;
   matchType: typeof MatchType;
+  challengeTeamBattle: boolean;
   matchMetaData: CasualMatchResult | RankedMatchResult | undefined;
   logger: Logger;
 
   constructor(file: string, process: ChildProcess) {
     this.process = process;
     this.file = file;
+    this.challengeTeamBattle = false;
     this.setDefaultState();
     this.logger = new Logger();
     this.tail = new Tail(this.file, {
@@ -125,8 +129,12 @@ class LogParser {
         const playerWins = game.winner.player === this.player.name;
         const player = playerWins ? game.winner : game.loser;
         const opponent = playerWins ? game.loser : game.winner;
-
-        if (this.matchType === MatchType.ranked && this.matchId !== null) {
+        if (
+          this.matchId !== null &&
+          (this.matchType === MatchType.ranked ||
+            (this.matchType === MatchType.challenge &&
+              this.challengeTeamBattle))
+        ) {
           db.insertGameResult(
             {
               match: this.matchMetaData,
@@ -195,10 +203,21 @@ class LogParser {
           );
         }
       }
+
       const rank = rankedData(line);
       if (rank) {
         db.setPlayer(rank);
         this.process.send([IpcActions.update, rank]);
+      }
+
+      const isFriendTeamBattle = friendTeamBattle(line);
+      if (isFriendTeamBattle) {
+        this.challengeTeamBattle = true;
+      }
+
+      const isFriendVersus = friendVersus(line);
+      if (isFriendVersus) {
+        this.challengeTeamBattle = false;
       }
     } catch (e) {
       this.logger.writeError("LogParser", e);
