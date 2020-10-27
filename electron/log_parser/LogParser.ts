@@ -5,6 +5,7 @@ import {
   casualMatchFound,
   challengeMatchFound,
   gameResult,
+  rankedBotMatchFound,
   rankedData,
   rankedMatchFound,
 } from "./matchers";
@@ -12,8 +13,8 @@ import db from "../database";
 import {CasualMatchResult, RankedMatchResult} from "../types";
 import Logger from "../logger";
 
-const {MatchType} = require("./constants");
-const {Actions} = require("./constants");
+const {MatchType} = require("../../common/constants");
+const {IpcActions} = require("../../common/constants");
 
 class LogParser {
   process: ChildProcess;
@@ -87,9 +88,9 @@ class LogParser {
       if (playerName) {
         if (playerName && this.player.name !== playerName) {
           this.player.name = playerName;
-          db.setPlayer({name: this.player.name});
+          db.setPlayer({ name: this.player.name });
         }
-        this.process.send([Actions.update, this.player.name]);
+        this.process.send([IpcActions.update, this.player.name]);
       }
       const casualMatch = casualMatchFound(line);
       const challengeMatch = challengeMatchFound(line);
@@ -114,8 +115,13 @@ class LogParser {
         this.matchMetaData = rankedMatchMetadata;
         this.matchType = MatchType.ranked;
       }
+      const rankedBotMatchData = rankedBotMatchFound(line);
+      if (rankedBotMatchData) {
+        this.matchType = MatchType.bot_ranked;
+      }
+
       const game = gameResult(line);
-      if (game) {
+      if (game && this.matchType !== MatchType.bot_ranked) {
         const playerWins = game.winner.player === this.player.name;
         const player = playerWins ? game.winner : game.loser;
         const opponent = playerWins ? game.loser : game.winner;
@@ -132,7 +138,7 @@ class LogParser {
             },
             () => {
               this.process.send([
-                Actions.update,
+                IpcActions.update,
                 {
                   id: this.matchId,
                   player_character: player.character,
@@ -173,7 +179,7 @@ class LogParser {
                   },
                   () => {
                     this.process.send([
-                      Actions.update,
+                      IpcActions.update,
                       {
                         id: this.matchId,
                         player_character: player.character,
@@ -192,7 +198,7 @@ class LogParser {
       const rank = rankedData(line);
       if (rank) {
         db.setPlayer(rank);
-        this.process.send([Actions.update, rank]);
+        this.process.send([IpcActions.update, rank]);
       }
     } catch (e) {
       this.logger.writeError("LogParser", e);

@@ -1,16 +1,29 @@
-import {app, BrowserWindow} from "electron";
+import {app, BrowserWindow, Menu, shell} from "electron";
 import path from "path";
 import url from "url";
 import Backend from "./backend";
 import electronIsDev from "electron-is-dev";
 import Logger from "./logger";
+import {getDatabase} from "./database";
+import {
+  createCharacterTable,
+  createConfigTable,
+  createGameTable,
+  createMatchTable,
+  createMatchTypeTable,
+  createPlayerTable,
+} from "./database/defaults";
+import upgrade from "./database/upgrade";
 
+const isMac = process.platform === "darwin";
 let mainWindow: BrowserWindow | null;
 
 function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 900,
-    height: 680,
+    width: 1024,
+    height: 768,
+    title: "Fantasy Strike Stat Tracker",
+    resizable: false,
     webPreferences: {
       nodeIntegration: true,
     },
@@ -41,10 +54,69 @@ app.on("activate", () => {
     createWindow();
   }
 });
+
+const menu = Menu.buildFromTemplate([
+  {
+    label: "File",
+    submenu: [isMac ? {role: "close"} : {role: "quit"}],
+  },
+  {
+    role: "help",
+    submenu: [
+      {
+        label: "GitHub",
+        click: () => {
+          shell.openExternal("https://github.com/grimkor/fs-stat-tracker/");
+        },
+      },
+      {
+        label: "Latest Version",
+        click: () => {
+          shell.openExternal(
+            "https://github.com/grimkor/fs-stat-tracker/releases"
+          );
+        },
+      },
+      {
+        label: "My Twitch",
+        click: () => {
+          shell.openExternal("https://www.twitch.tv/grimbakor");
+        },
+      },
+    ],
+  },
+]);
+Menu.setApplicationMenu(menu);
+
 try {
-  new Logger().flushFile();
-  const backend = new Backend();
-  backend.run();
+  const logger = new Logger();
+  logger.flushFile();
+  logger.writeLine("main.ts");
+  getDatabase((db) => {
+    logger.writeLine("main getDatabase");
+    db.serialize(() => {
+      const errorCallback = (err: Error | null) => {
+        logger.writeLine("init callback");
+        if (err) {
+          new Logger().writeError(err.name, err.message);
+        }
+      };
+      db.exec(createConfigTable, errorCallback);
+      db.exec(createMatchTable, errorCallback);
+      db.exec(createGameTable, errorCallback);
+      db.exec(createPlayerTable, errorCallback);
+      db.exec(createCharacterTable, errorCallback);
+      db.exec(createMatchTypeTable, (err) => {
+        if (err) {
+          errorCallback(err);
+        } else {
+          upgrade();
+        }
+      });
+    });
+    const backend = new Backend();
+    backend.run();
+  });
 } catch (e) {
   throw e;
 }

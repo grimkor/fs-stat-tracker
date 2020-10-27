@@ -4,6 +4,9 @@ import {ipcMain, IpcMainEvent} from "electron";
 import db from "../database";
 import path from "path";
 import Logger from "../logger";
+import {IpcActions} from "../../common/constants";
+import {OverviewStats} from "../../common/types";
+import _ from "lodash";
 
 class Backend {
   process: ChildProcess | null;
@@ -22,12 +25,11 @@ class Backend {
       db.getConfig((data) => {
         if (data) {
           const config = data.reduce(
-            (obj, row) => ({...obj, [row.setting]: row.value}),
+            (obj, row) => ({ ...obj, [row.setting]: row.value }),
             {} as { [key: string]: string }
           );
           if (fs.existsSync(config.logFile)) {
             try {
-              console.log(path.resolve(__dirname, "logParser.js"));
               this.process = fork(
                 path.resolve(__dirname, "logParser.js"),
                 [config.logFile],
@@ -40,7 +42,7 @@ class Backend {
             }
             if (this.process) {
               const processEvent = (type: string) => (e: Error) =>
-                this.logger.writeLine("LogParser", "error", e.message ?? e);
+                this.logger.writeLine("LogParser", type, e.message ?? e);
 
               this.process.on("error", processEvent("error"));
               this.process.on("close", processEvent("close"));
@@ -82,55 +84,97 @@ class Backend {
 
   run() {
     this.startLogParser();
-    ipcMain.on("subscribe", (event) => {
+    ipcMain.on(IpcActions.subscribe, (event) => {
       this.addSubscription(event.frameId, event);
       event.reply("status", "Connected");
     });
 
-    ipcMain.on("unsubscribe", (event) => {
+    ipcMain.on(IpcActions.unsubscribe, (event) => {
       this.removeSubscription(event.frameId);
     });
 
-    ipcMain.on("get_config", (event) => {
+    ipcMain.on(IpcActions.get_config, (event) => {
       db.getConfig((data) => {
         if (data) {
           const config = data.reduce((obj, row) => {
-            return {...obj, [row.setting]: row.value};
+            return { ...obj, [row.setting]: row.value };
           }, {});
-          event.reply("get_config_reply", config);
+          event.reply(`${IpcActions.get_config}_reply`, config);
         }
       });
     });
 
-    ipcMain.on("set_config", (event, args) => {
+    ipcMain.on(IpcActions.set_config, (event, args) => {
       db.setConfig(args, () => {
         this.startLogParser();
-        this.route("update", "");
+        this.route(IpcActions.update, "");
       });
     });
 
-    ipcMain.on("get_player", (event) => {
+    ipcMain.on(IpcActions.get_player, (event) => {
       db.getPlayer((data) => {
         if (data) {
           const player = data.reduce((obj, row) => {
-            return {...obj, [row.property]: row.value};
+            return { ...obj, [row.property]: row.value };
           }, {});
-          event.reply("get_player_reply", player);
+          event.reply(`${IpcActions.get_player}_reply`, player);
         }
       });
     });
 
-    ipcMain.on("get_stats", (event) => {
+    ipcMain.on(IpcActions.get_stats, (event) => {
       db.getWinLoss((data) => {
         if (data) {
-          const replyObj = data.reduce(
+          const replyObj: OverviewStats = data.reduce(
             (obj, row) => ({
               ...obj,
               [row.match_type]: {...row},
             }),
-            {}
+            {
+              ranked: {wins: 0, losses: 0},
+              casual: {wins: 0, losses: 0},
+              challenge: {wins: 0, losses: 0},
+            } as OverviewStats
           );
-          event.reply("get_stats_reply", replyObj);
+          event.reply(`${IpcActions.get_stats}_reply`, replyObj);
+        }
+      });
+    });
+
+    ipcMain.on(
+      IpcActions.get_character_winrate,
+      (event, args: { filter: number[]; character: string }) => {
+        db.getWinratePivot(args, (data) => {
+          if (data) {
+            const response = _.keyBy(data, "opponent");
+            event.reply(`${IpcActions.get_character_winrate}_reply`, response);
+          }
+        });
+      }
+    );
+
+    ipcMain.on(
+      IpcActions.get_character_overview,
+      (event, args: { character: string; filter: number[] }) => {
+        db.getCharacterOverview(args, (data) => {
+          if (data) {
+            event.reply(`${IpcActions.get_character_overview}_reply`, data[0]);
+          }
+        });
+      }
+    );
+
+    ipcMain.on(IpcActions.get_game_results, (event, args) => {
+      db.getGameResults(args, (data) => {
+        if (data) {
+          event.reply(`${IpcActions.get_game_results}_reply`, data);
+        }
+      });
+    });
+    ipcMain.on(IpcActions.get_rank, (event) => {
+      db.getRank((data) => {
+        if (data) {
+          event.reply(`${IpcActions.get_rank}_reply`, data);
         }
       });
     });

@@ -1,57 +1,65 @@
-import React, {FC, useContext} from "react";
+import React, {FC} from "react";
 import {Divider, Typography} from "@material-ui/core";
 import OverviewStat from "../../components/OverviewStat";
 import {useIpcRequest} from "../../helpers/useIpcRequest";
-import {AppContext} from "../../context";
+import {IpcActions} from "../../../common/constants";
+import {OverviewStats, Rank} from "../../../common/types";
+import {toRank, toWinrate} from "../../helpers/formatters";
 
-interface Stats {
-  ranked: {
-    wins: number;
-    losses: number;
-    wins30: number;
-    losses30: number;
-    max_rank: number;
-    rank: number;
-  };
-  casual: {
-    wins: number;
-    losses: number;
-    wins30: number;
-    losses30: number;
-  };
-}
-
+//TODO: See about moving the divs with inline styles to components in src/components
 const Overview: FC = () => {
-  const context = useContext(AppContext);
-  const {data} = useIpcRequest<Stats>("get_stats");
+  const {data} = useIpcRequest<OverviewStats>(IpcActions.get_stats, {
+    defaultValue: {
+      casual: {
+        wins: 0,
+        losses: 0,
+      },
+      ranked: {
+        wins: 0,
+        losses: 0,
+      },
+      challenge: {
+        wins: 0,
+        losses: 0,
+      },
+    },
+  });
+  const {data: rank} = useIpcRequest<Rank>(IpcActions.get_rank, {
+    defaultValue: {
+      player_league: 0,
+      player_rank: 0,
+    },
+  });
+  const {ranked, casual, challenge} = data;
+
   return (
     <div
       style={{
+        flex: 1,
         display: "grid",
         gridTemplateColumns: "1fr 1fr",
         marginTop: 16,
       }}
     >
-      <div style={{gridColumn: "1/-1"}}>
+      <div style={{gridColumn: "1/-1", padding: "0 16px"}}>
         <Typography variant="h5">Ranked</Typography>
         <Divider/>
       </div>
       <OverviewStat
         title="Win/Loss"
-        value={`${data?.ranked?.wins ?? " - "}:${
-          data?.ranked?.losses ?? " - "
-        }`}
+        value={`${ranked.wins}:${ranked.losses}`}
       />
-      <OverviewStat title="Rank" value={context.player.rank}/>
       <OverviewStat
-        title="Win/Loss (30 days)"
-        value={`${data?.ranked?.wins30 ?? " - "}:${
-          data?.ranked?.losses30 ?? " - "
-        }`}
+        title="Rank"
+        value={toRank(rank.player_league, rank.player_rank)}
       />
-      <div style={{ gridColumn: "1/-1", padding: "0 16px" }}>
+      <OverviewStat
+        title="Winrate"
+        value={`${toWinrate(ranked.wins, ranked.losses)}%`}
+      />
+      <div style={{gridColumn: "1/-1", padding: "0 16px"}}>
         <Typography variant="h5">Casual</Typography>
-        <Divider />
+        <Divider/>
       </div>
       <OverviewStat
         title="Win/Loss"
@@ -60,10 +68,22 @@ const Overview: FC = () => {
         }`}
       />
       <OverviewStat
-        title="Win/Loss (30 days)"
-        value={`${data?.casual?.wins30 ?? " - "}:${
-          data?.casual?.losses30 ?? " - "
+        title="Winrate"
+        value={`${toWinrate(casual.wins, casual.losses)}%`}
+      />
+      <div style={{gridColumn: "1/-1", padding: "0 16px"}}>
+        <Typography variant="h5">Friendly</Typography>
+        <Divider/>
+      </div>
+      <OverviewStat
+        title="Win/Loss"
+        value={`${data?.challenge?.wins ?? " - "}:${
+          data?.challenge?.losses ?? " - "
         }`}
+      />
+      <OverviewStat
+        title="Winrate"
+        value={`${toWinrate(challenge.wins, challenge.losses)}%`}
       />
     </div>
   );

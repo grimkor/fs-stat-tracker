@@ -5,6 +5,9 @@ const useStyles = makeStyles((theme: Theme) => ({
   root: {
     margin: theme.spacing(1),
     padding: theme.spacing(1),
+    display: "flex",
+    flex: 1,
+    overflow: "hidden",
   },
 }));
 

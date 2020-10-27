@@ -9,15 +9,19 @@ export interface Player {
   property: string;
   value: string;
 }
-export interface WinLoss {
-  total: string;
-  wins: string;
-  losses: string;
-  wins30: string;
-  losses30: string;
-  max_rank: string;
-  rank: string;
-  match_type: string;
+
+
+export interface WinratePivot {
+  player: string;
+  opponent: string;
+  wins: number;
+  losses: number;
+}
+
+export interface CharacterOverview {
+  name: string;
+  wins: number;
+  losses: number;
 }
 
 export interface DatabaseInput {
@@ -80,3 +84,4 @@ export interface RankedDataResult {
   league: string;
   rank: string;
 }
+
