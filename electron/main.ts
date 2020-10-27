@@ -1,4 +1,4 @@
-import {app, BrowserWindow} from "electron";
+import {app, BrowserWindow, Menu, shell} from "electron";
 import path from "path";
 import url from "url";
 import Backend from "./backend";
@@ -15,12 +15,15 @@ import {
 } from "./database/defaults";
 import upgrade from "./database/upgrade";
 
+const isMac = process.platform === "darwin";
 let mainWindow: BrowserWindow | null;
 
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1024,
     height: 768,
+    title: "Fantasy Strike Stat Tracker",
+    resizable: false,
     webPreferences: {
       nodeIntegration: true,
     },
@@ -51,6 +54,40 @@ app.on("activate", () => {
     createWindow();
   }
 });
+
+const menu = Menu.buildFromTemplate([
+  {
+    label: "File",
+    submenu: [isMac ? {role: "close"} : {role: "quit"}],
+  },
+  {
+    role: "help",
+    submenu: [
+      {
+        label: "GitHub",
+        click: () => {
+          shell.openExternal("https://github.com/grimkor/fs-stat-tracker/");
+        },
+      },
+      {
+        label: "Latest Version",
+        click: () => {
+          shell.openExternal(
+            "https://github.com/grimkor/fs-stat-tracker/releases"
+          );
+        },
+      },
+      {
+        label: "My Twitch",
+        click: () => {
+          shell.openExternal("https://www.twitch.tv/grimbakor");
+        },
+      },
+    ],
+  },
+]);
+Menu.setApplicationMenu(menu);
+
 try {
   const logger = new Logger();
   logger.flushFile();

@@ -1,10 +1,10 @@
 Current release: [Click here](https://github.com/grimkor/fs-stat-tracker/releases)
 
-# FS Stat Tracker
+# Fantasy Strike Stat Tracker
 
-FS Stat Tracker is a stat tracker for Fantasy Strike. By running in the background the FS Stat Tracker will record match and game results as they occur feeding back win:loss and rank for ranked and casual.
+Fantasy Strike Stat Tracker is a stat tracker for Fantasy Strike. By running in the background the Fantasy Strike Stat Tracker will record match and game results as they occur feeding back win:loss and rank for ranked and casual.
 
-FS Stat Tracker achieves this by reading the game logs and storing results in a local database. All data is stored locally and not shared over the internet.
+Fantasy Strike Stat Tracker achieves this by reading the game logs and storing results in a local database. All data is stored locally and not shared over the internet.
 
 ![Screenshot](img/fs-stat-tracker_overview.png)
 
@@ -15,7 +15,7 @@ Currently, there is only a Windows version of this however other versions can be
 
 The current release can be found here: [current release](https://github.com/grimkor/fs-stat-tracker/releases)
 
-### How to use the FS Stat Tracker
+### How to use the Fantasy Strike Stat Tracker
 
 It is important to run this program each time before running Fantasy Strike. With that in mind there is not much to it other than to extract the executable file and double-click.
 
@@ -60,6 +60,6 @@ Output should be in _<project_root>/packages_
 
 ## Issues & Bugs
 
-If you run into any issues or bugs with the FS Stat Tracker then I urge you to raise an [issue](https://github.com/grimkor/fs-stat-tracker/issues/new) on this GitHub project and attach the output logs found at _%USERPROFILE%/fs-stat-tracker.log_. Please note this file resets every time the FS Stat Tracker is ran, so for the logs to be pertinent they must be from the last time the issue/bug occurred without re-running the application.
+If you run into any issues or bugs with the Fantasy Strike Stat Tracker then I urge you to raise an [issue](https://github.com/grimkor/fs-stat-tracker/issues/new) on this GitHub project and attach the output logs found at _%USERPROFILE%/fs-stat-tracker.log_. Please note this file resets every time the Fantasy Strike Stat Tracker is ran, so for the logs to be pertinent they must be from the last time the issue/bug occurred without re-running the application.
 
 Alternatively I am on the Fantasy Strike Discord as @Grimbakor.
