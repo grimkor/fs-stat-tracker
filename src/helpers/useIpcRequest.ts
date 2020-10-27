@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useState } from "react";
-import { IpcActions } from "../../constants";
+import {useCallback, useEffect, useState} from "react";
+import {IpcActions} from "../../common/constants";
 
-const { ipcRenderer } = window.require("electron");
+const {ipcRenderer} = window.require("electron");
 
 export function useIpcRequest<T>(
   endpoint: string,

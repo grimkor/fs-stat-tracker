@@ -1,23 +1,20 @@
-import React, { FC } from "react";
-import { Avatar, Paper, Typography } from "@material-ui/core";
+import React, {FC} from "react";
+import {Avatar, Paper, Typography} from "@material-ui/core";
 import * as Characters from "../../characters/portraits";
+import {toRank} from "../../helpers/formatters";
 
-const CharacterHistoryList: FC<{ name: string; data: any[] }> = ({
-  name,
-  data,
-}) =>
+const CharacterHistoryList: FC<{ name: string; data: any[] }> = ({data}) =>
   data ? (
     <div
       style={{
         display: "flex",
-        flex: 1,
         overflow: "hidden",
         flexDirection: "column",
         alignItems: "stretch",
       }}
     >
-      <Typography variant="overline" style={{ textAlign: "center" }}>
-        Last 20 Games
+      <Typography variant="overline" style={{textAlign: "center"}}>
+        Game History
       </Typography>
       <div
         style={{
@@ -29,9 +26,9 @@ const CharacterHistoryList: FC<{ name: string; data: any[] }> = ({
       >
         {data
           .sort((a, b) => (a.id < b.id ? 1 : -1))
-          .map((game) => (
+          .map((game, index) => (
             <Paper
-              key={`${game.id}-${game.match_id}`}
+              key={`${index}${game.id}${game.match_id}`}
               style={{
                 display: "flex",
                 flexDirection: "row",
@@ -43,11 +40,9 @@ const CharacterHistoryList: FC<{ name: string; data: any[] }> = ({
               <Typography
                 variant="h6"
                 style={{
-                  justifyContent: "center",
                   margin: "0px 8px",
                   width: 50,
                   textAlign: "center",
-                  flex: 1,
                 }}
               >
                 {game.player_score > game.opp_score ? "Win" : "Loss"}
@@ -56,7 +51,7 @@ const CharacterHistoryList: FC<{ name: string; data: any[] }> = ({
                 variant="h4"
                 style={{
                   whiteSpace: "nowrap",
-                  width: 100,
+                  width: 80,
                   textAlign: "center",
                 }}
               >
@@ -66,17 +61,19 @@ const CharacterHistoryList: FC<{ name: string; data: any[] }> = ({
                 style={{
                   flex: 2,
                   display: "flex",
-                  // flexDirection: "column",
                   alignItems: "center",
-                  margin: "0px 8px",
+                  margin: "0px 16px",
                 }}
               >
                 <Avatar
                   // @ts-ignore
                   src={Characters?.[game.opponent.toLowerCase()]}
-                  style={{ marginRight: 8 }}
+                  style={{marginRight: 8}}
                 />
                 <Typography>{game.opp_name}</Typography>
+                <Typography style={{flex: 1, textAlign: "end"}}>
+                  {toRank(game.opp_league, game.opp_rank)}
+                </Typography>
               </div>
             </Paper>
           ))}

@@ -1,10 +1,12 @@
 import fs from "fs";
-import { ChildProcess, fork } from "child_process";
-import { ipcMain, IpcMainEvent } from "electron";
+import {ChildProcess, fork} from "child_process";
+import {ipcMain, IpcMainEvent} from "electron";
 import db from "../database";
 import path from "path";
 import Logger from "../logger";
-import { IpcActions } from "../../constants";
+import {IpcActions} from "../../common/constants";
+import {OverviewStats} from "../../common/types";
+import _ from "lodash";
 
 class Backend {
   process: ChildProcess | null;
@@ -28,7 +30,6 @@ class Backend {
           );
           if (fs.existsSync(config.logFile)) {
             try {
-              console.log(path.resolve(__dirname, "logParser.js"));
               this.process = fork(
                 path.resolve(__dirname, "logParser.js"),
                 [config.logFile],
@@ -41,7 +42,7 @@ class Backend {
             }
             if (this.process) {
               const processEvent = (type: string) => (e: Error) =>
-                this.logger.writeLine("LogParser", "error", e.message ?? e);
+                this.logger.writeLine("LogParser", type, e.message ?? e);
 
               this.process.on("error", processEvent("error"));
               this.process.on("close", processEvent("close"));
@@ -124,25 +125,33 @@ class Backend {
     ipcMain.on(IpcActions.get_stats, (event) => {
       db.getWinLoss((data) => {
         if (data) {
-          const replyObj = data.reduce(
+          const replyObj: OverviewStats = data.reduce(
             (obj, row) => ({
               ...obj,
-              [row.match_type]: { ...row },
+              [row.match_type]: {...row},
             }),
-            {}
+            {
+              ranked: {wins: 0, losses: 0},
+              casual: {wins: 0, losses: 0},
+              challenge: {wins: 0, losses: 0},
+            } as OverviewStats
           );
           event.reply(`${IpcActions.get_stats}_reply`, replyObj);
         }
       });
     });
 
-    ipcMain.on(IpcActions.get_winrate_pivot, (event, args: number[]) => {
-      db.getWinratePivot(args, (data) => {
-        if (data) {
-          event.reply(`${IpcActions.get_winrate_pivot}_reply`, data);
-        }
-      });
-    });
+    ipcMain.on(
+      IpcActions.get_character_winrate,
+      (event, args: { filter: number[]; character: string }) => {
+        db.getWinratePivot(args, (data) => {
+          if (data) {
+            const response = _.keyBy(data, "opponent");
+            event.reply(`${IpcActions.get_character_winrate}_reply`, response);
+          }
+        });
+      }
+    );
 
     ipcMain.on(
       IpcActions.get_character_overview,
@@ -159,6 +168,13 @@ class Backend {
       db.getGameResults(args, (data) => {
         if (data) {
           event.reply(`${IpcActions.get_game_results}_reply`, data);
+        }
+      });
+    });
+    ipcMain.on(IpcActions.get_rank, (event) => {
+      db.getRank((data) => {
+        if (data) {
+          event.reply(`${IpcActions.get_rank}_reply`, data);
         }
       });
     });

@@ -10,16 +10,6 @@ export interface Player {
   value: string;
 }
 
-export interface WinLoss {
-  total: string;
-  wins: string;
-  losses: string;
-  wins30: string;
-  losses30: string;
-  max_rank: string;
-  rank: string;
-  match_type: string;
-}
 
 export interface WinratePivot {
   player: string;

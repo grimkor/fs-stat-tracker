@@ -1,16 +1,10 @@
-import React, {
-  createContext,
-  Dispatch,
-  FC,
-  useCallback,
-  useEffect,
-  useReducer,
-} from "react";
-import { Config, Context, MatchTypesObj, Player } from "../types";
-import reducer, { Actions, ActionTypes } from "./reducer";
-import { useIpcRequest } from "../helpers/useIpcRequest";
-import { IpcActions } from "../../constants";
-const { ipcRenderer } = window.require("electron");
+import React, {createContext, Dispatch, FC, useEffect, useReducer,} from "react";
+import {Config, Context, MatchTypesObj, Player} from "../types";
+import reducer, {Actions, ActionTypes} from "./reducer";
+import {useIpcRequest} from "../helpers/useIpcRequest";
+import {IpcActions} from "../../common/constants";
+
+const {ipcRenderer} = window.require("electron");
 
 const defaultContext: Context = {
   player: {

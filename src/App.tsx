@@ -7,9 +7,6 @@ import Overview from "./containers/Overview";
 import History from "./containers/History";
 import Settings from "./containers/Settings";
 import Container from "./components/Container";
-import Stats from "./containers/Stats";
-import "devextreme/dist/css/dx.common.css";
-import "devextreme/dist/css/dx.light.css";
 import Characters from "./containers/Characters";
 import CharacterDetails from "./containers/CharacterDetails";
 
@@ -47,9 +44,6 @@ export default function App() {
                 </Route>
                 <Route exact path="/characters">
                   <Characters />
-                </Route>
-                <Route exact path="/stats">
-                  <Stats />
                 </Route>
                 <Route exact path="/history">
                   <History />

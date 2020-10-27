@@ -1,5 +1,5 @@
-import { ChildProcess } from "child_process";
-import { Tail } from "tail";
+import {ChildProcess} from "child_process";
+import {Tail} from "tail";
 import {
   authenticated,
   casualMatchFound,
@@ -10,11 +10,11 @@ import {
   rankedMatchFound,
 } from "./matchers";
 import db from "../database";
-import { CasualMatchResult, RankedMatchResult } from "../types";
+import {CasualMatchResult, RankedMatchResult} from "../types";
 import Logger from "../logger";
 
-const { MatchType } = require("../../constants");
-const { IpcActions } = require("../../constants");
+const {MatchType} = require("../../common/constants");
+const {IpcActions} = require("../../common/constants");
 
 class LogParser {
   process: ChildProcess;

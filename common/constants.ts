@@ -10,10 +10,11 @@ export const IpcActions = {
   set_config: "set_config",
   update: "update",
   get_character_overview: "get_character_overview",
-  get_winrate_pivot: "get_winrate_pivot",
+  get_character_winrate: "get_winrate_pivot",
   get_stats: "get_stats",
   get_game_results: "get_game_results",
   get_player: "get_player",
+  get_rank: "get_rank",
 };
 
 export const MatchType = {

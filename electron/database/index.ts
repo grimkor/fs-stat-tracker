@@ -1,4 +1,4 @@
-import { Database } from "sqlite3";
+import {Database} from "sqlite3";
 import {
   CharacterOverview,
   Config,
@@ -8,10 +8,10 @@ import {
   Match,
   Player,
   SetPlayerInput,
-  WinLoss,
   WinratePivot,
 } from "../types";
 import Logger from "../logger";
+import {WinLoss} from "../../common/types";
 
 const sqlite3 = require("sqlite3");
 const path = require("path");
@@ -218,29 +218,25 @@ const getWinLoss = (callback: DatabaseCallback<WinLoss[]>) => {
     try {
       db.all(
         `
-        select count(x.id)                                                     as total,
-               sum(case when win > lose then 1 else 0 end)                     as wins,
-               sum(case when win < lose then 1 else 0 end)                     as losses,
-               sum(case when win > lose AND last30 then 1 else 0 end)          as wins30,
-               sum(case when win < lose AND last30 then 1 else 0 end)          as losses30,
-               MIN(x.player_rank)                                              as max_rank,
-               (SELECT player_rank FROM match ORDER BY timestamp DESC limit 1) as rank,
-               mt.type                                                         as match_type
-        from (
-                 select m.id,
-                        m.match_type,
-                        player_rank,
-                        timestamp,
-                        sum(case when g.player_score > g.opp_score then 1 else 0 end)       as win,
-                        sum(case when g.player_score < g.opp_score then 1 else 0 end)       as lose,
-                        case when timestamp > datetime('now', '-30 days') then 1 else 0 end as last30
-                 from match m
-                          join game g on m.id = g.match_id
-                 group by m.id, m.match_type
-             ) x
-                 join match_type mt on mt.id = x.match_type
+        select count(x.id)                                 as total,
+               sum(case when win > lose then 1 else 0 end) as wins,
+               sum(case when win < lose then 1 else 0 end) as losses,
+               mt.type                                     as match_type
+        from match_type mt
+                 left join (
+            select m.id,
+                   m.match_type,
+                   player_rank,
+                   timestamp,
+                   sum(case when g.player_score > g.opp_score then 1 else 0 end)       as win,
+                   sum(case when g.player_score < g.opp_score then 1 else 0 end)       as lose,
+                   case when timestamp > datetime('now', '-30 days') then 1 else 0 end as last30
+            from match m
+                     join game g on m.id = g.match_id
+            group by m.id, m.match_type
+        ) x on mt.id = x.match_type
         group by x.match_type;
-    `,
+        `,
         logger.withErrorHandling("getWinLoss", callback)
       );
     } catch (e) {
@@ -250,31 +246,34 @@ const getWinLoss = (callback: DatabaseCallback<WinLoss[]>) => {
 };
 
 const getWinratePivot = (
-  matchTypes: number[],
+  args: {
+    filter: number[];
+    character: string;
+  },
   callback: DatabaseCallback<WinratePivot[]>
 ) => {
-  if (!matchTypes) {
+  if (!args.filter) {
     return;
   }
   getDatabase((db) => {
     try {
       db.all(
         `
-        select c.name                                                        as player,
-               c2.name                                                       as opponent,
+        select c2.name                                                       as opponent,
                sum(case when g.player_score > g.opp_score then 1 else 0 end) as wins,
                sum(case when g.player_score < g.opp_score then 1 else 0 end) as losses
         from character c
                  cross join character c2
                  left join (SELECT *
-                            from game g                                    
+                            from game g
                                      join match m on g.match_id = m.id
-                            where match_type in (${matchTypes.join()})
+                            where match_type in (${args.filter.join()})
                  ) g
                            on g.player_character = c.id and g.opp_character = c2.id
-        group by c.name, c2.name;
+        where c.name = '${args.character}'
+        group by c2.name;
         `,
-        logger.withErrorHandling("getWinratePivot", callback)
+        logger.withErrorHandling("getWinratePivot callback", callback)
       );
     } catch (e) {
       logger.writeError("getWinratePivot", e);
@@ -344,6 +343,25 @@ const getGameResults = (
   });
 };
 
+const getRank = (callback: DatabaseCallback<CharacterOverview[]>) => {
+  getDatabase((db) => {
+    try {
+      db.get(
+        `
+        SELECT m.player_rank, player_league
+        from match m
+        where match_type = 2
+        order by m.timestamp desc
+        limit 1;
+        `,
+        logger.withErrorHandling("getRank", callback)
+      );
+    } catch (e) {
+      logger.writeError("getRank", e);
+    }
+  });
+};
+
 export default {
   getConfig,
   setConfig,
@@ -355,4 +373,5 @@ export default {
   getWinratePivot,
   getCharacterOverview,
   getGameResults,
+  getRank,
 };
