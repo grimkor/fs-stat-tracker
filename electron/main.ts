@@ -1,4 +1,4 @@
-import {app, BrowserWindow, Menu, shell} from "electron";
+import {app, BrowserWindow, Menu, MenuItemConstructorOptions, shell,} from "electron";
 import path from "path";
 import url from "url";
 import Backend from "./backend";
@@ -14,6 +14,7 @@ import {
   createPlayerTable,
 } from "./database/defaults";
 import upgrade from "./database/upgrade";
+import {version} from "../package.json";
 
 const isMac = process.platform === "darwin";
 let mainWindow: BrowserWindow | null;
@@ -61,12 +62,29 @@ const menu = Menu.buildFromTemplate([
     submenu: [isMac ? {role: "close"} : {role: "quit"}],
   },
   {
+    label: "About",
+    submenu: [
+      {
+        label: "My Twitch",
+        click: () => {
+          shell.openExternal("https://www.twitch.tv/grimbakor");
+        },
+      },
+    ],
+  },
+  {
     role: "help",
     submenu: [
       {
         label: "GitHub",
         click: () => {
           shell.openExternal("https://github.com/grimkor/fs-stat-tracker/");
+        },
+      },
+      {
+        label: "Discord",
+        click: () => {
+          shell.openExternal("https://discord.gg/vtHwm3P");
         },
       },
       {
@@ -78,13 +96,15 @@ const menu = Menu.buildFromTemplate([
         },
       },
       {
-        label: "My Twitch",
-        click: () => {
-          shell.openExternal("https://www.twitch.tv/grimbakor");
-        },
+        label: version,
+        enabled: false,
       },
     ],
   },
+
+  ...((electronIsDev
+    ? [{label: "Dev", submenu: [{label: "Refresh", role: "reload"}]}]
+    : []) as MenuItemConstructorOptions[]),
 ]);
 Menu.setApplicationMenu(menu);
 

@@ -79,7 +79,7 @@ export const challengeMatchFound = (
     if (match) {
       logger.writeLine("match", "challengeMatchFound", line);
       const split = line.split(/\[\|joinchallenge:/i);
-      const properties = split[1].matchAll(/\w*:\w*/gi);
+      const properties = split[1].matchAll(/\w*:.*?(?=[,\]])/gi);
       return [...properties].reduce((acc, prop) => {
         const [key, value] = prop[0].split(":");
         return key ? { ...acc, [key]: value } : acc;
@@ -155,5 +155,29 @@ export const rankedData = (line: string): RankedDataResult | undefined => {
     }
   } catch (e) {
     logger.writeError("rankedData matcher", e);
+  }
+};
+
+export const friendTeamBattle = (line: string): boolean | undefined => {
+  try {
+    const match = line.match(/\[\|setmode:friend-teambattle\]/i);
+    if (match) {
+      logger.writeLine("match", "friendTeamBattle", line);
+      return true;
+    }
+  } catch (e) {
+    logger.writeError("friendTeamBattle matcher", e);
+  }
+};
+
+export const friendVersus = (line: string): boolean | undefined => {
+  try {
+    const match = line.match(/\[\|setmode:friend-versus\]/i);
+    if (match) {
+      logger.writeLine("match", "friendVersus", line);
+      return true;
+    }
+  } catch (e) {
+    logger.writeError("friendVersus matcher", e);
   }
 };
