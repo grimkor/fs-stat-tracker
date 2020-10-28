@@ -103,7 +103,17 @@ const menu = Menu.buildFromTemplate([
   },
 
   ...((electronIsDev
-    ? [{label: "Dev", submenu: [{label: "Refresh", role: "reload"}]}]
+    ? [
+      {
+        label: "Dev",
+        submenu: [
+          {label: "Refresh", role: "reload"},
+          {
+            role: "toggleDevTools",
+          },
+        ],
+      },
+    ]
     : []) as MenuItemConstructorOptions[]),
 ]);
 Menu.setApplicationMenu(menu);
@@ -118,7 +128,7 @@ try {
       const errorCallback = (err: Error | null) => {
         logger.writeLine("init callback");
         if (err) {
-          new Logger().writeError(err.name, err.message);
+          new Logger().writeError(err.name, err?.message);
         }
       };
       db.exec(createConfigTable, errorCallback);

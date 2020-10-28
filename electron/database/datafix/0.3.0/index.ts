@@ -10,12 +10,12 @@ export default (callback: () => void) => {
       db.serialize(() => {
         db.exec(createCharacterTableScript, (err) => {
           if (err) {
-            logger.writeError(err.name, err.message);
+            logger.writeError(err.name, err?.message);
           }
         });
         db.exec(createMatchTypeTableScript, (err) => {
           if (err) {
-            logger.writeError(err.name, err.message);
+            logger.writeError(err.name, err?.message);
           } else {
             callback();
           }

@@ -35,7 +35,7 @@ export default class Logger {
   withErrorHandling<T>(name: string, callback?: DatabaseCallback<T>) {
     return (err: Error | null, result?: T) => {
       if (err) {
-        this.writeError(name, err.name, err.message);
+        this.writeError(name, err?.name, err?.message);
       } else {
         if (callback) {
           callback(result);
