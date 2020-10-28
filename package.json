@@ -5,7 +5,7 @@
     "url": "https://github.com/grimkor/fs-stat-tracker"
   },
   "license": "MIT",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "private": true,
   "dependencies": {
     "electron-is-dev": "^1.2.0",
