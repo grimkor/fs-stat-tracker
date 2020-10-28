@@ -19,7 +19,8 @@ const Settings: FC = () => {
 
   const submit = () => {
     if (config.logFile !== logFile) {
-      ipcSetRequest(IpcActions.set_config, {logFile});
+      ipcSetRequest(IpcActions.set_config, {logFile}, () => {
+      });
     }
   };
 

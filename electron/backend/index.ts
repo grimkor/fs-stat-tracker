@@ -42,7 +42,7 @@ class Backend {
             }
             if (this.process) {
               const processEvent = (type: string) => (e: Error) =>
-                this.logger.writeLine("LogParser", type, e.message ?? e);
+                this.logger.writeLine("LogParser", type, e?.message ?? e);
 
               this.process.on("error", processEvent("error"));
               this.process.on("close", processEvent("close"));
@@ -107,7 +107,8 @@ class Backend {
     ipcMain.on(IpcActions.set_config, (event, args) => {
       db.setConfig(args, () => {
         this.startLogParser();
-        this.route(IpcActions.update, "");
+        this.logger.writeLine("after setConfig startLogParser");
+        this.route(IpcActions.update, "Hello there");
       });
     });
 
