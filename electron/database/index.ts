@@ -121,13 +121,15 @@ const insertMatch = (
     try {
       db.get(
         `
-      SELECT m.id, m.match_id, m.match_type,
-          (case when m.match_type = 'ranked' then 4 else 2 end) as max_games
-      FROM match m
-      WHERE m.match_id = ?
-        AND match_type != 'challenge'
-      GROUP BY m.match_id
-      HAVING count(*) > max_games
+        SELECT m.id,
+               m.match_id,
+               m.match_type,
+               (case when m.match_type = 2 then 4 else 2 end) as max_games
+        FROM match m
+        WHERE m.id = ?
+          AND match_type != 3
+        GROUP BY m.id
+        HAVING count(*) > max_games
     `,
         [match.matchId],
         logger.withErrorHandling("insertMatch", (res) => {
