@@ -45,6 +45,7 @@ export default class Logger {
   }
 
   flushFile() {
-    fs.writeFile(this.outputFile, "", Logger.handleError);
+    this.writeLine("Flushing file temporarily disabled.");
+    // fs.writeFile(this.outputFile, "", Logger.handleError);
   }
 }
