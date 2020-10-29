@@ -52,7 +52,7 @@ const FileSelectInput: FC<Props> = ({ value, setValue }) => {
         <TextField
           variant="outlined"
           className={field}
-          value={value}
+          value={value.substring(value.lastIndexOf("\\") + 1, value.length)}
           // @ts-ignore
           onClick={() => ref.current.click()}
         />
