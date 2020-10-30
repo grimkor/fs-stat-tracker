@@ -1,11 +1,11 @@
 import fs from "fs";
-import {ChildProcess, fork} from "child_process";
-import {ipcMain, IpcMainEvent} from "electron";
+import { ChildProcess, fork } from "child_process";
+import { ipcMain, IpcMainEvent } from "electron";
 import db from "../database";
 import path from "path";
 import Logger from "../logger";
-import {IpcActions} from "../../common/constants";
-import {OverviewStats} from "../../common/types";
+import { IpcActions } from "../../common/constants";
+import { OverviewStats } from "../../common/types";
 import _ from "lodash";
 
 class Backend {
@@ -41,6 +41,7 @@ class Backend {
               this.logger.writeError("startLogParser", e);
             }
             if (this.process) {
+              this.logger.writeLine("LogParser", "started");
               const processEvent = (type: string) => (e: Error) =>
                 this.logger.writeLine("LogParser", type, e?.message ?? e);
 
@@ -107,8 +108,8 @@ class Backend {
     ipcMain.on(IpcActions.set_config, (event, args) => {
       db.setConfig(args, () => {
         this.startLogParser();
-        this.logger.writeLine("after setConfig startLogParser");
-        this.route(IpcActions.update, "Hello there");
+        this.route(`${IpcActions.set_config}_reply`, "");
+        this.route(IpcActions.update, "");
       });
     });
 
@@ -129,12 +130,12 @@ class Backend {
           const replyObj: OverviewStats = data.reduce(
             (obj, row) => ({
               ...obj,
-              [row.match_type]: {...row},
+              [row.match_type]: { ...row },
             }),
             {
-              ranked: {wins: 0, losses: 0},
-              casual: {wins: 0, losses: 0},
-              challenge: {wins: 0, losses: 0},
+              ranked: { wins: 0, losses: 0 },
+              casual: { wins: 0, losses: 0 },
+              challenge: { wins: 0, losses: 0 },
             } as OverviewStats
           );
           event.reply(`${IpcActions.get_stats}_reply`, replyObj);

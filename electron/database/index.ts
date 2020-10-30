@@ -119,25 +119,8 @@ const insertMatch = (
 ) => {
   getDatabase((db) => {
     try {
-      db.get(
+      db.run(
         `
-        SELECT m.id,
-               m.match_id,
-               m.match_type,
-               (case when m.match_type = 2 then 4 else 2 end) as max_games
-        FROM match m
-        WHERE m.id = ?
-          AND match_type != 3
-        GROUP BY m.id
-        HAVING count(*) > max_games
-    `,
-        [match.matchId],
-        logger.withErrorHandling("insertMatch", (res) => {
-          if (res) {
-            return;
-          }
-          db.run(
-            `
           INSERT OR IGNORE INTO match
           (match_id, match_type, player_league, player_rank, player_stars, opp_id, opp_name, opp_platform, opp_platform_id,
            opp_input_config, opp_league, opp_rank)
@@ -155,31 +138,26 @@ const insertMatch = (
                  ?
           ;
   `,
-            [
-              match.matchId,
-              match.matchType,
-              match.playerLeague,
-              match.playerRank,
-              match.playerStars,
-              match.oppId,
-              match.oppName,
-              match.oppPlatform,
-              match.oppPlatformId,
-              match.oppInputConfig,
-              match.oppLeague,
-              match.oppRank,
-            ],
-            () => {
-              db.get(
-                "SELECT last_insert_rowid() as id from match",
-                logger.withErrorHandling<{ id: string }>(
-                  "insertMatch",
-                  callback
-                )
-              );
-            }
+        [
+          match.matchId,
+          match.matchType,
+          match.playerLeague,
+          match.playerRank,
+          match.playerStars,
+          match.oppId,
+          match.oppName,
+          match.oppPlatform,
+          match.oppPlatformId,
+          match.oppInputConfig,
+          match.oppLeague,
+          match.oppRank,
+        ],
+        () => {
+          db.get(
+            "SELECT last_insert_rowid() as id from match",
+            logger.withErrorHandling<{ id: string }>("insertMatch", callback)
           );
-        })
+        }
       );
     } catch (e) {
       logger.writeError("insertMatch", e);
