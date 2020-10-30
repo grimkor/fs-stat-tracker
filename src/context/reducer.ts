@@ -19,7 +19,7 @@ const reducer: Reducer<Context, ActionTypes> = (state, action) => {
       if (!_.isEqual(state.config, action.payload)) {
         return {
           ...state,
-          config: action.payload,
+          config: {...state.config, ...action.payload},
         };
       }
       break;
