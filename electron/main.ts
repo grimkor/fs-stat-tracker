@@ -121,12 +121,9 @@ Menu.setApplicationMenu(menu);
 try {
   const logger = new Logger();
   logger.flushFile();
-  logger.writeLine("main.ts");
   getDatabase((db) => {
-    logger.writeLine("main getDatabase");
     db.serialize(() => {
       const errorCallback = (err: Error | null) => {
-        logger.writeLine("init callback");
         if (err) {
           new Logger().writeError(err.name, err?.message);
         }
