@@ -1,5 +1,5 @@
-import {ChildProcess} from "child_process";
-import {Tail} from "tail";
+import { ChildProcess } from "child_process";
+import { Tail } from "tail";
 import {
   authenticated,
   casualMatchFound,
@@ -12,11 +12,11 @@ import {
   rankedMatchFound,
 } from "./matchers";
 import db from "../database";
-import {CasualMatchResult, RankedMatchResult} from "../types";
+import { CasualMatchResult, RankedMatchResult } from "../types";
 import Logger from "../logger";
 
-const {MatchType} = require("../../common/constants");
-const {IpcActions} = require("../../common/constants");
+const { MatchType } = require("../../common/constants");
+const { IpcActions } = require("../../common/constants");
 
 class LogParser {
   process: ChildProcess;
@@ -102,7 +102,7 @@ class LogParser {
         this.setDefaultState();
         const metaData = (casualMatch ?? challengeMatch) as CasualMatchResult;
         this.matchType = casualMatch ? MatchType.casual : MatchType.challenge;
-        this.opponent.name = metaData.oppName;
+        this.opponent.name = metaData.oppName.replace("*", "");
         this.opponent.id = metaData.oppPlayerId;
         this.matchMetaData = metaData;
       }
@@ -110,7 +110,7 @@ class LogParser {
       if (rankedMatchMetadata) {
         this.setDefaultState();
         this.opponent.id = rankedMatchMetadata.oppPlayerId;
-        this.opponent.name = rankedMatchMetadata.oppName;
+        this.opponent.name = rankedMatchMetadata.oppName.replace("*", "");
         this.opponent.rank = rankedMatchMetadata.oppRank;
         this.opponent.league = rankedMatchMetadata.oppLeague;
         this.player.rank = rankedMatchMetadata.playerRank;
@@ -126,7 +126,15 @@ class LogParser {
 
       const game = gameResult(line);
       if (game && this.matchType !== MatchType.bot_ranked) {
-        const playerWins = game.winner.player === this.player.name;
+        let playerWins: boolean;
+        const players = [game.loser.player, game.winner.player];
+        if (this.opponent.name && players.includes(this.opponent.name)) {
+          playerWins = game.winner.player !== this.opponent.name;
+        } else if (this.player.name && players.includes(this.player.name)) {
+          playerWins = game.winner.player === this.player.name;
+        } else {
+          return;
+        }
         const player = playerWins ? game.winner : game.loser;
         const opponent = playerWins ? game.loser : game.winner;
         if (
