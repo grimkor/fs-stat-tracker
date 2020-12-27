@@ -35,3 +35,14 @@ export interface Rank {
   player_rank: number;
   player_league: number;
 }
+
+export interface FilterDate {
+  startDate: number;
+  endDate: number;
+}
+
+export interface Filter {
+  matchTypes: number[];
+  date: FilterDate;
+  filterDate: boolean;
+}

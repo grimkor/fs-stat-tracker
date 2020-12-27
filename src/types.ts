@@ -1,3 +1,5 @@
+import {Filter} from "../common/types";
+
 export interface Player {
   name: string;
   rank: string;
@@ -10,10 +12,9 @@ export interface Config {
 export interface Context {
   player: Player;
   config: Config;
-  filter: number[];
-  setFilter: (filters: number[]) => void;
+  filter: Filter;
+  setFilter: (filters: Filter) => void;
 }
-
 
 export const MatchTypesObj: { [key: string]: number } = {
   Casual: 1,

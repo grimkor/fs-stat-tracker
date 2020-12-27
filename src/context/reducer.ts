@@ -1,6 +1,7 @@
 import { Reducer } from "react";
 import { Config, Context, Player } from "../types";
 import _ from "lodash";
+import {Filter} from "../../common/types";
 
 export enum Actions {
   set_config = "set_config",
@@ -11,7 +12,7 @@ export enum Actions {
 export type ActionTypes =
   | { type: Actions.set_config; payload: Config }
   | { type: Actions.set_player; payload: Player }
-  | { type: Actions.set_filter; payload: number[] };
+  | { type: Actions.set_filter; payload: Filter };
 
 const reducer: Reducer<Context, ActionTypes> = (state, action) => {
   switch (action.type) {
@@ -19,7 +20,7 @@ const reducer: Reducer<Context, ActionTypes> = (state, action) => {
       if (!_.isEqual(state.config, action.payload)) {
         return {
           ...state,
-          config: {...state.config, ...action.payload},
+          config: { ...state.config, ...action.payload },
         };
       }
       break;
@@ -33,10 +34,11 @@ const reducer: Reducer<Context, ActionTypes> = (state, action) => {
       break;
 
     case Actions.set_filter:
-      if (!_.isEqual(state.filter, action.payload)) {
+      const filter = { ...state.filter, ...action.payload };
+      if (!_.isEqual(state.filter, filter)) {
         return {
           ...state,
-          filter: action.payload,
+          filter,
         };
       }
       break;
