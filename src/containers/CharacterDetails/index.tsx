@@ -1,29 +1,29 @@
-import React, {FC, useContext, useMemo} from "react";
-import {useParams} from "react-router-dom";
-import {useIpcRequest} from "../../helpers/useIpcRequest";
-import {AppContext} from "../../context";
+import React, { FC, useContext, useMemo } from "react";
+import { useParams } from "react-router-dom";
+import { useIpcRequest } from "../../helpers/useIpcRequest";
+import { AppContext } from "../../context";
 import CharacterHistoryList from "../../components/CharacterHistoryList";
 import * as Characters from "../../characters/portraits";
-import {CharacterOverview} from "../../../electron/types";
+import { CharacterOverview } from "../../../electron/types";
 import OverviewStat from "../../components/OverviewStat";
-import {IpcActions} from "../../../common/constants";
-import {toWinrate} from "../../helpers/formatters";
-import {Typography} from "@material-ui/core";
-import {CharactersList} from "../../types";
-import {CharacterWinrate} from "../../../common/types";
+import { IpcActions } from "../../../common/constants";
+import { toWinrate } from "../../helpers/formatters";
+import { Typography } from "@material-ui/core";
+import { CharactersList } from "../../types";
+import { CharacterWinrate } from "../../../common/types";
 import MatchupWinrateCard from "../../components/MatchupWinrateCard";
 
 const CharacterDetails: FC = () => {
   const {
     filter,
-    player: {name},
+    player: { name },
   } = useContext(AppContext);
-  const {character} = useParams();
-  const values = useMemo(() => ({filter, character, limit: 200}), [
+  const { character } = useParams();
+  const values = useMemo(() => ({ filter, character, limit: 200 }), [
     filter,
     character,
   ]);
-  const {data: overview} = useIpcRequest<CharacterOverview>(
+  const { data: overview } = useIpcRequest<CharacterOverview>(
     IpcActions.get_character_overview,
     {
       args: values,
@@ -34,18 +34,18 @@ const CharacterDetails: FC = () => {
       },
     }
   );
-  const {data} = useIpcRequest<any[]>(IpcActions.get_game_results, {
+  const { data } = useIpcRequest<any[]>(IpcActions.get_game_results, {
     args: values,
   });
 
-  const {data: characterWinrate} = useIpcRequest<CharacterWinrate>(
+  const { data: characterWinrate } = useIpcRequest<CharacterWinrate>(
     IpcActions.get_character_winrate,
     {
       args: values,
     }
   );
 
-  const {wins, losses} = overview;
+  const { wins, losses } = overview;
   return (
     <div
       style={{
@@ -63,21 +63,21 @@ const CharacterDetails: FC = () => {
           overflow: "hidden",
         }}
       >
-        <div style={{display: "flex", height: 200}}>
+        <div style={{ display: "flex", height: 200 }}>
           <img
             // @ts-ignore
             src={Characters?.[character.toLowerCase()]}
             alt={character}
-            style={{objectFit: "scale-down", overflow: "hidden"}}
+            style={{ objectFit: "scale-down", overflow: "hidden" }}
           />
         </div>
-        <OverviewStat title="Games Played" value={wins + losses}/>
-        <OverviewStat title="Won" value={wins}/>
-        <OverviewStat title="Winrate" value={`${toWinrate(wins, losses)}%`}/>
+        <OverviewStat title="Games Played" value={wins + losses} />
+        <OverviewStat title="Won" value={wins} />
+        <OverviewStat title="Winrate" value={`${toWinrate(wins, losses)}%`} />
       </div>
-      {data ? <CharacterHistoryList name={name} data={data}/> : null}
-      <div style={{flex: 1, display: "flex", flexDirection: "column"}}>
-        <Typography variant="overline" style={{textAlign: "center"}}>
+      <CharacterHistoryList name={name} data={data} />
+      <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+        <Typography variant="overline" style={{ textAlign: "center" }}>
           Matchup Winrate
         </Typography>
         <div

@@ -1,4 +1,9 @@
-import {CasualMatchResult, GameResultMatch, RankedDataResult, RankedMatchResult,} from "../types";
+import {
+  CasualMatchResult,
+  GameResultMatch,
+  RankedDataResult,
+  RankedMatchResult,
+} from "../types";
 import Logger from "../logger";
 
 const logger = new Logger();
@@ -57,14 +62,17 @@ export const casualMatchFound = (
   line: string
 ): CasualMatchResult | undefined => {
   try {
-    const match = line.match(/\[\|join:ip/i);
+    const match = line.match(/\[\|join:/i);
     if (match) {
-      logger.writeLine("match", "casualMatchFound", line);
       const properties = line.matchAll(/\w*:.*?(?=[,\]])/gi);
-      return [...properties].reduce((acc, prop) => {
+      const casualMatchResult = [...properties].reduce((acc, prop) => {
         const [key, value] = prop[0].split(":");
         return key ? { ...acc, [key]: value } : acc;
       }, {} as CasualMatchResult);
+      if (casualMatchResult.gameplayRandomSeed) {
+        logger.writeLine("match", "casualMatchFound", line);
+        return casualMatchResult;
+      }
     }
   } catch (e) {
     logger.writeError("casualMatchFound matcher", e);

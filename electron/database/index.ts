@@ -1,4 +1,4 @@
-import {Database} from "sqlite3";
+import { Database } from "sqlite3";
 import {
   CharacterOverview,
   Config,
@@ -11,7 +11,7 @@ import {
   WinratePivot,
 } from "../types";
 import Logger from "../logger";
-import {WinLoss} from "../../common/types";
+import { Filter, WinLoss } from "../../common/types";
 
 const sqlite3 = require("sqlite3");
 const path = require("path");
@@ -193,7 +193,10 @@ const insertGameResult = (
   });
 };
 
-const getWinLoss = (callback: DatabaseCallback<WinLoss[]>) => {
+const getWinLoss = (
+  args: { filter: Filter },
+  callback: DatabaseCallback<WinLoss[]>
+) => {
   getDatabase((db) => {
     try {
       db.all(
@@ -213,6 +216,13 @@ const getWinLoss = (callback: DatabaseCallback<WinLoss[]>) => {
                    case when timestamp > datetime('now', '-30 days') then 1 else 0 end as last30
             from match m
                      join game g on m.id = g.match_id
+            ${
+              args.filter.filterDate
+                ? `where m.timestamp > datetime(${args.filter.date.startDate}, 'unixepoch')
+            and m.timestamp < datetime(${args.filter.date.endDate}, 'unixepoch')
+        `
+                : ``
+            }
             group by m.id, m.match_type
         ) x on mt.id = x.match_type
         group by x.match_type;
@@ -227,7 +237,7 @@ const getWinLoss = (callback: DatabaseCallback<WinLoss[]>) => {
 
 const getWinratePivot = (
   args: {
-    filter: number[];
+    filter: Filter;
     character: string;
   },
   callback: DatabaseCallback<WinratePivot[]>
@@ -247,7 +257,14 @@ const getWinratePivot = (
                  left join (SELECT *
                             from game g
                                      join match m on g.match_id = m.id
-                            where match_type in (${args.filter.join()})
+                            where match_type in (${args.filter.matchTypes.join()})
+        ${
+          args.filter.filterDate
+            ? `and m.timestamp > datetime(${args.filter.date.startDate}, 'unixepoch')
+            and m.timestamp < datetime(${args.filter.date.endDate}, 'unixepoch')
+        `
+            : ``
+        }
                  ) g
                            on g.player_character = c.id and g.opp_character = c2.id
         where c.name = '${args.character}'
@@ -262,7 +279,7 @@ const getWinratePivot = (
 };
 
 const getCharacterOverview = (
-  args: { character?: string; filter: number[] },
+  args: { character?: string; filter: Filter },
   callback: DatabaseCallback<CharacterOverview[]>
 ) => {
   getDatabase((db) => {
@@ -277,7 +294,14 @@ const getCharacterOverview = (
                  left outer join (select *
                                   from game
                                            join match m on game.match_id = m.id
-                                  where match_type in (${args.filter.join()})
+                                  where match_type in (${args.filter.matchTypes.join()})
+        ${
+          args.filter.filterDate
+            ? `and m.timestamp > datetime(${args.filter.date.startDate}, 'unixepoch')
+            and m.timestamp < datetime(${args.filter.date.endDate}, 'unixepoch')
+        `
+            : ``
+        }
         ) g on c.id = g.player_character
         ${args.character ? `where c.name = '${args.character}'` : ""}
         group by c.id
@@ -292,7 +316,7 @@ const getCharacterOverview = (
 };
 
 const getGameResults = (
-  args: { filter: number[]; character?: string; limit?: number },
+  args: { filter: Filter; character?: string; limit?: number },
   callback: DatabaseCallback<CharacterOverview[]>
 ) => {
   getDatabase((db) => {
@@ -309,11 +333,18 @@ const getGameResults = (
         join match m on g.match_id = m.id
         join character c on g.player_character = c.id
         join character c2 on g.opp_character = c2.id
-        
-        where m.match_type in (${args.filter.join()})
+
+        where m.match_type in (${args.filter.matchTypes.join()})
         ${args.character ? `and c.name = '${args.character}'` : ""}
+        ${
+          args.filter.filterDate
+            ? `and m.timestamp > datetime(${args.filter.date.startDate}, 'unixepoch')
+            and m.
+            timestamp < datetime(${args.filter.date.endDate}, 'unixepoch')
+        `
+            : ``
+        }
         ${args.limit ? `limit ${args.limit}` : ""}
-        
         ;`,
         logger.withErrorHandling("getGameResults", callback)
       );

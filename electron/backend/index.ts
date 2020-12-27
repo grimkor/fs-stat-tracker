@@ -5,7 +5,7 @@ import db from "../database";
 import path from "path";
 import Logger from "../logger";
 import { IpcActions } from "../../common/constants";
-import { OverviewStats } from "../../common/types";
+import { Filter, OverviewStats } from "../../common/types";
 import _ from "lodash";
 
 class Backend {
@@ -124,8 +124,8 @@ class Backend {
       });
     });
 
-    ipcMain.on(IpcActions.get_stats, (event) => {
-      db.getWinLoss((data) => {
+    ipcMain.on(IpcActions.get_stats, (event, args: { filter: Filter }) => {
+      db.getWinLoss(args, (data) => {
         if (data) {
           const replyObj: OverviewStats = data.reduce(
             (obj, row) => ({
@@ -145,7 +145,7 @@ class Backend {
 
     ipcMain.on(
       IpcActions.get_character_winrate,
-      (event, args: { filter: number[]; character: string }) => {
+      (event, args: { filter: Filter; character: string }) => {
         db.getWinratePivot(args, (data) => {
           if (data) {
             const response = _.keyBy(data, "opponent");
@@ -157,7 +157,7 @@ class Backend {
 
     ipcMain.on(
       IpcActions.get_character_overview,
-      (event, args: { character: string; filter: number[] }) => {
+      (event, args: { character: string; filter: Filter }) => {
         db.getCharacterOverview(args, (data) => {
           if (data) {
             event.reply(`${IpcActions.get_character_overview}_reply`, data[0]);

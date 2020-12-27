@@ -10,7 +10,6 @@ export interface Player {
   value: string;
 }
 
-
 export interface WinratePivot {
   player: string;
   opponent: string;

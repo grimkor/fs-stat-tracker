@@ -1,12 +1,20 @@
-import React, {createContext, Dispatch, FC, useEffect, useReducer,} from "react";
-import {Config, Context, MatchTypesObj, Player} from "../types";
-import reducer, {Actions, ActionTypes} from "./reducer";
-import {useIpcRequest} from "../helpers/useIpcRequest";
-import {IpcActions} from "../../common/constants";
+import React, {
+  createContext,
+  Dispatch,
+  FC,
+  useEffect,
+  useReducer,
+} from "react";
+import { Config, Context, MatchTypesObj, Player } from "../types";
+import reducer, { Actions, ActionTypes } from "./reducer";
+import { useIpcRequest } from "../helpers/useIpcRequest";
+import { IpcActions } from "../../common/constants";
+import moment from "moment";
+import { Filter } from "../../common/types";
 
-const {ipcRenderer} = window.require("electron");
+const { ipcRenderer } = window.require("electron");
 
-const defaultContext: Context = {
+export const defaultContext: Context = {
   player: {
     name: "-",
     rank: "-",
@@ -14,7 +22,14 @@ const defaultContext: Context = {
   config: {
     logFile: "",
   },
-  filter: Object.values(MatchTypesObj),
+  filter: {
+    matchTypes: Object.values(MatchTypesObj),
+    date: {
+      startDate: moment().add(-1, "months").startOf("day").unix(),
+      endDate: moment(moment().endOf("day"), "YYYY-MM-DD").unix(),
+    },
+    filterDate: false,
+  },
   setFilter: () => {},
 };
 
@@ -58,7 +73,7 @@ export const AppProvider: FC = ({ children }) => {
     };
   }, []);
 
-  const setFilter = (payload: number[]) =>
+  const setFilter = (payload: Filter) =>
     dispatch({ type: Actions.set_filter, payload });
 
   return <Provider value={{ ...state, setFilter }}>{children}</Provider>;
