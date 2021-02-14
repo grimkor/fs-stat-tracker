@@ -1,7 +1,7 @@
 import path from "path";
-import {homedir} from "os";
+import { homedir } from "os";
 import fs from "fs";
-import {DatabaseCallback} from "../types";
+import { DatabaseCallback } from "../types";
 
 export default class Logger {
   outputFile: string;
@@ -38,7 +38,11 @@ export default class Logger {
         this.writeError(name, err?.name, err?.message);
       } else {
         if (callback) {
-          callback(result);
+          try {
+            callback(result);
+          } catch (e) {
+            this.writeError("withErrorHandling", name, e);
+          }
         }
       }
     };

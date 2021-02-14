@@ -11,6 +11,12 @@ try {
     // @ts-ignore
     const Parser = new LogParser(file, process);
     Parser.run();
+    process.addListener("disconnect", () => {
+      Parser.stop();
+    });
+    process.addListener("beforeExit", () => {
+      Parser.stop();
+    });
   }
 } catch (e) {
   logger.writeError("LogParser init", e);

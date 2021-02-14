@@ -182,6 +182,11 @@ class Backend {
     });
   }
 
+  stop() {
+    this.stopLogParser();
+    ipcMain.removeAllListeners();
+  }
+
   route(action: string, message: string) {
     this.subscriptions.forEach((sub) => sub.event.reply(action, message));
   }
