@@ -1,10 +1,16 @@
-import {app, BrowserWindow, Menu, MenuItemConstructorOptions, shell,} from "electron";
+import {
+  app,
+  BrowserWindow,
+  Menu,
+  MenuItemConstructorOptions,
+  shell,
+} from "electron";
 import path from "path";
 import url from "url";
 import Backend from "./backend";
 import electronIsDev from "electron-is-dev";
 import Logger from "./logger";
-import {getDatabase} from "./database";
+import { getDatabase } from "./database";
 import {
   createCharacterTable,
   createConfigTable,
@@ -14,10 +20,12 @@ import {
   createPlayerTable,
 } from "./database/defaults";
 import upgrade from "./database/upgrade";
-import {version} from "../package.json";
+import { version } from "../package.json";
 
 const isMac = process.platform === "darwin";
 let mainWindow: BrowserWindow | null;
+
+const backend = new Backend();
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -46,6 +54,7 @@ function createWindow() {
 app.on("ready", createWindow);
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
+    backend.stop();
     app.quit();
   }
 });
@@ -59,7 +68,7 @@ app.on("activate", () => {
 const menu = Menu.buildFromTemplate([
   {
     label: "File",
-    submenu: [isMac ? {role: "close"} : {role: "quit"}],
+    submenu: [isMac ? { role: "close" } : { role: "quit" }],
   },
   {
     label: "About",
@@ -104,16 +113,16 @@ const menu = Menu.buildFromTemplate([
 
   ...((electronIsDev
     ? [
-      {
-        label: "Dev",
-        submenu: [
-          {label: "Refresh", role: "reload"},
-          {
-            role: "toggleDevTools",
-          },
-        ],
-      },
-    ]
+        {
+          label: "Dev",
+          submenu: [
+            { label: "Refresh", role: "reload" },
+            {
+              role: "toggleDevTools",
+            },
+          ],
+        },
+      ]
     : []) as MenuItemConstructorOptions[]),
 ]);
 Menu.setApplicationMenu(menu);
@@ -141,7 +150,6 @@ try {
         }
       });
     });
-    const backend = new Backend();
     backend.run();
   });
 } catch (e) {

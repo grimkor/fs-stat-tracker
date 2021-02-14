@@ -69,6 +69,10 @@ class LogParser {
     this.tail.watch();
   }
 
+  stop() {
+    this.tail.unwatch();
+  }
+
   setDefaultState() {
     this.player = {
       ...this.player,
